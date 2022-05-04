@@ -1,8 +1,10 @@
 const express = require('express');
 const app = express();
+const logger = require('./logger');
 const {engine} = require('express-handlebars');
 const methodOverride = require('method-override');
 const bodyParser = require('body-parser');
+const pinohttp = require('pino-http');
 
 // Tell the app to use handlebars templating engine.  
 //   Configure the engine to use a simple .hbs extension to simplify file naming
@@ -26,6 +28,12 @@ app.use(methodOverride(function (req, res) {
   }
 }));
 app.use(express.static('public'));
+
+// Http request logs will go to same location as main logger
+const httpLogger = pinohttp({
+  logger: logger
+});
+app.use(httpLogger);
 
 // Make sure errorController is last!
 const controllers = ['homeController', 'productsController', 'errorController']
