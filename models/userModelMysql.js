@@ -36,11 +36,16 @@ async function initialize(dbname, reset) {
       logger.info("Table users dropped");
     }
     // Create table if it doesn't exist
-    const sqlQuery =
+    let sqlQuery =
       "CREATE TABLE IF NOT EXISTS users(id int AUTO_INCREMENT, username VARCHAR(50), password VARCHAR(50), PRIMARY KEY(id))";
-
     await connection.execute(sqlQuery);
     logger.info("Table users created/exists");
+    
+    sqlQuery =
+    "INSERT INTO users (username, password) VALUES ('admin','admin')"
+  await connection.execute(sqlQuery);
+  logger.info("Add Admin");
+    
   } catch (error) {
     logger.error(error.message);
     throw new DBConnectionError();

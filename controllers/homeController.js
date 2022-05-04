@@ -34,7 +34,7 @@ function generateLoginPage(req, res){
     const loginPageData = {
         'title': 'Login',
         'ignore': 'true',
-        formFieldLogin: [{input:"username",id:"usernameLogin"},{input:"password",id:"passwordLogin"}],
+        loginFields: [{input:"username",id:"usernameLogin"},{input:"password",id:"passwordLogin"}],
         'buttonName': 'login'
     }
     res.render('login.hbs', loginPageData);
