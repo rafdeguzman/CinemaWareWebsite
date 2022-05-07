@@ -1,9 +1,14 @@
 <body>
     <div id="productList">
-        {{#each}}
-        <div class="productItem">
+        {{#each products}}
+        <form action="/cart" method="post" class="productItem">
+            <input type="hidden" name="addProduct" value="true">
 
-        </div>
+            <input type="hidden" name="name" value="{{name}}">
+            <input type="hidden" name="type" value="{{type}}">
+            <input type="hidden" name="price" value="{{price}}">
+
+        </form>
         {{/each}}
     </div>
 </body>

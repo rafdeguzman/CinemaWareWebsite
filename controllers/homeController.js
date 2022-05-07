@@ -2,15 +2,15 @@ const express = require('express');
 const router = express.Router();
 const routeRoot = '/';
 
-function showHome(req, res){
-    res.render("allProducts.hbs")
+async function showHome(req, res){
+    const renderItems = {};
+    res.render("home.hbs", renderItems)
 }
 
 router.get('/', showHome);
 
 module.exports = {
     showHome,
-    showForm,
     router,
     routeRoot
 }
