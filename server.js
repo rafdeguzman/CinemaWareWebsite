@@ -6,7 +6,7 @@ app.listen(port);
 // WARNING: UNCOMMENT BELOW FOR FINAL PROJECT
 //let dbName = process.argv[2];
 //if (!dbName) {
-//    dbName = 'hardware_db';
+//    dbName = 'cinemaware_db';
 //}
 //model.initialize(dbName, false)
 //    .then(

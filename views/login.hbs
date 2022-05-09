@@ -1,0 +1,17 @@
+<body id="login-body"style="background-color: #040404;">
+    <div class="card align-middle h-auto" id="login">
+        <img class="card-img-top" src="images/logo_wide_white.png" style="margin-top:1rem;" alt="Card image">
+        <div style="margin-top: 2rem;">
+            <h4 class="card-title">{{title}}</h4>
+            <div class="card-body" style="margin-left: 1rem; margin-right:1rem;">
+            <form class="mb-3" action="/pokemon" method="post" role ="form" enctype="application/x-www-form-urlencoded">
+            {{#each loginFields}}
+                <input type="text" id="{{this}}" class="form-control form-control-lg" placeholder="{{this}}"><br>
+            {{/each}}
+            <button class="btn btn-primary btn-lg btn-block" id="login-button" type="submit" style="width:100%; background-color:brown">{{buttonName}}</button>
+            </form>
+            <a href="#" style="margin-top:2rem;">Forgot your password?</p>  
+            </div>
+        </div>
+    </div>
+</body>

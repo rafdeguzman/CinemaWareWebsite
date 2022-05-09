@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
-const logger = require('./logger');
 const {engine} = require('express-handlebars');
+const logger = require('./logger');
 const methodOverride = require('method-override');
 const bodyParser = require('body-parser');
 const pinohttp = require('pino-http');
@@ -36,7 +36,7 @@ const httpLogger = pinohttp({
 app.use(httpLogger);
 
 // Make sure errorController is last!
-const controllers = ['homeController', 'productsController', 'errorController']
+const controllers = ['homeController', 'productController', 'errorController']
 
 // Register routes from all controllers 
 //  (Assumes a flat directory structure and common 'routeRoot' / 'router' export)

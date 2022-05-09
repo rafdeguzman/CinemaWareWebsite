@@ -2,15 +2,9 @@ const express = require('express');
 const router = express.Router();
 const routeRoot = '/';
 
-testDatabase = [
-    {}
-]
-
-function showHome(req, res){
-    const renderItems = {
-        list: testDatabase
-    }
-    res.render("allProducts.hbs", renderItems);
+async function showHome(req, res){
+    const renderItems = {};
+    res.render("home.hbs", renderItems)
 }
 
 router.get('/', showHome);

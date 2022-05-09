@@ -1,16 +1,13 @@
 <body>
     <div id="productList">
-        {{#each list}}
+        {{#each products}}
         <form action="/cart" method="post" class="productItem">
-            <img class="card-img-top" src="images/logo_wide_white.png" alt="Card image cap">
-            <h3 class="name">{{name}}</h3>
+            <input type="hidden" name="addProduct" value="true">
+
             <input type="hidden" name="name" value="{{name}}">
-            <h4 class="type" name>{{type}}</h4>
             <input type="hidden" name="type" value="{{type}}">
-            <p class="price">{{price}}</p>
             <input type="hidden" name="price" value="{{price}}">
-            <input type="hidden" name="addItem" value="true">
-            <input type="submit" value="Add to Cart">
+
         </form>
         {{/each}}
     </div>

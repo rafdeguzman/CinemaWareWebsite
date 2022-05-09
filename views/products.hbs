@@ -1,0 +1,33 @@
+<body>
+    {{#grouped_each 3 products}}
+    <div class="row">
+        {{#each this}}
+        <form action="/cart" method="post" class="col-sm-4 item">
+            <input type="hidden" name="addProduct" value="true">
+            <input type="hidden" name="name" value="{{this.name}}">
+            <input type="hidden" name="type" value="{{this.type}}">
+            <input type="hidden" name="price" value="{{this.price}}">
+            <div class="card" style="width: 18rem;">
+                <p>product type: {{this.type}}</p>
+                <img class="card-img-top" src="images/logo_wide_white.png" alt="Card image cap">
+                <div class="card-body">
+                    <h5 class="card-title">{{this.name}}</h5>
+                    <p class="card-text">{{this.price}}</p>
+                    <input type="submit" value="Add to Cart" class="btn btn-primary">
+                </div>
+            </div>
+        </form>
+        {{/each}}
+    </div>
+    {{/grouped_each}}
+    {{!-- {{#each products}}
+    <div class="card" style="width: 18rem;">
+        <img class="card-img-top" src="images/logo_wide_white.png" alt="Card image cap">
+        <div class="card-body">
+            <h5 class="card-title">{{this.name}}</h5>
+            <p class="card-text">{{this.price}}</p>
+            <a href="#" class="btn btn-primary">Add to Cart</a>
+        </div>
+    </div>
+    {{/each}} --}}
+</body>
