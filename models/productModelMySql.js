@@ -1,5 +1,4 @@
 const mysql = require('mysql2/promise');
-const validate = require('../validateUtils');
 const logger = require('../logger');
 const { connect } = require('../app');
 var connection;
@@ -37,7 +36,7 @@ async function initialize(dbname, reset) {
             logger.info("Table products dropped");
         }
         // Create table if it doesn't exist
-        const sqlQuery = 'CREATE TABLE IF NOT EXISTS products(id int AUTO_INCREMENT, name VARCHAR(50), category VARCHAR(50), price INTEGER, PRIMARY KEY(id))';
+        const sqlQuery = 'CREATE TABLE IF NOT EXISTS products(id int AUTO_INCREMENT, name VARCHAR(50), type VARCHAR(50), price FLOAT, PRIMARY KEY(id))';
 
         await connection.execute(sqlQuery);
         logger.info("Table products created/exists");
@@ -64,21 +63,21 @@ async function initialize(dbname, reset) {
  *  Product as an object
  * 
  * @param {string} name Name of Product.  Must be alphabetical only with no spaces.
- * @param {string} category Category of Product.  Must one one of allowed categories (see validateUtils.validTypes)
+ * @param {string} type type of Product.  Must one one of allowed categories (see validateUtils.validTypes)
  * @param {string} price Product price. Must be a positive integer.
  * @returns {Object} Product that was added successfully {name: string, type: string}
  * @throws InvalidInputError, DBConnectionError
  */
-async function addProduct(name, category, price) {
-    if (!validate.isValid(name, category, price)) {
+async function addProduct(name, type, price) {
+    if (!validate(name, type, price)) {
         throw new InvalidInputError();
     }
-    const sqlQuery = 'INSERT INTO products (name, category, price) VALUES (\"'
-        + name + '\",\"' + category + '\", \"' + price + '\")';
+    const sqlQuery = 'INSERT INTO products (name, type, price) VALUES (\"'
+        + name + '\",\"' + type + '\", \"' + price + '\")';
     try {
         await connection.execute(sqlQuery);
         logger.info("Product added");        
-        return { "name": name, "category": category, "price": price };  //works and returns object
+        return { "name": name, "type": type, "price": price };  //works and returns object
     } catch (error) {
         logger.error(error);
         throw new DBConnectionError();
@@ -90,24 +89,24 @@ async function addProduct(name, category, price) {
  * 
  * @param {string} id Key of product to find.
  * @param {string} name Name of Product.  Must be alphabetical only with no spaces.
- * @param {string} category Category of Product.  Must one one of allowed categories (see validateUtils.validTypes)
+ * @param {string} type type of Product.  Must one one of allowed categories (see validateUtils.validTypes)
  * @param {string} price Product price. Must be a positive integer.
  * @returns {Object} Product that was added successfully {name: string, type: string}
  * @throws InvalidInputError, DBConnectionError
  */
-async function updateProduct(id, name, category, price) {
-    if (!validate.isValid(name, category, price)) {
+async function updateProduct(id, name, type, price) {
+    if (!validate(name, type, price)) {
         throw new InvalidInputError();
     }
     if(!getCount(id) > 0){
         throw new InvalidInputError();
     }
     const sqlQuery = 'UPDATE products SET name = \"'
-        + name + '\", category = \"' + category + '\", price = \"' + price + '\" WHERE id = \"' + id + '\"';
+        + name + '\", type = \"' + type + '\", price = \"' + price + '\" WHERE id = \"' + id + '\"';
     try {
         await connection.execute(sqlQuery);
         logger.info("Product with id " + id + " updated");        
-        return { "name": name, "category": category, "price": price };  //works and returns object
+        return { "name": name, "type": type, "price": price };  //works and returns object
     } catch (error) {
         logger.error(error);
         throw new DBConnectionError();
@@ -140,7 +139,7 @@ async function findProduct(id) {
         .then((x) => {
             logger.info("Product with id " + id + " selected");        
         let object = x[0][0];
-        return { "name": object.name, "category": object.category, "price": object.price };  //works and returns object
+        return { "name": object.name, "type": object.type, "price": object.price };  //works and returns object
         })
         .catch((error) => {
             throw new InvalidInputError();
@@ -151,32 +150,30 @@ async function findProduct(id) {
     }        
 }
 
-async function getCount(){
-    const sqlQuery = "SELECT COUNT(*) FROM products";
+/**
+ * 
+ * @returns Returns an array of all products with name, type and price as columns
+ * 
+ */
+async function getProducts(){
+    const sqlQuery = 'SELECT name, type, price FROM products'
     try{
-        var count = await connection.execute(sqlQuery);
-        logger.info("Getting count of all items");
-        return count;
+        const rows = await connection.execute(sqlQuery);
+        logger.info('Items retrieved')
+        return rows
     } catch(error){
-        logger.error(error);
+        logger.error(error)
         throw new DBConnectionError();
     }
 }
-/**
- * Just for checking if specified id exists.
- * @param {*} id 
- * @returns Integer of number of times id was found in the database.
- */
-async function getCountOfId(id){
-    const sqlQuery = "SELECT COUNT(*) FROM products WHERE id = " + id;
-    try{
-        var count = await connection.execute(sqlQuery);
-        logger.info("Getting count of all items");
-        return count;
-    } catch(error){
-        logger.error(error);
-        throw new DBConnectionError();
-    }
+
+const types = ['dslr', 'video', 'webcam', 'camera'];
+
+function validate(name, type, price){
+    if(types.includes(type) && price > 0)
+        return true;
+    else
+        return false;
 }
 
 module.exports = {
@@ -184,9 +181,8 @@ module.exports = {
     addProduct,
     updateProduct,
     deleteProduct,
+    getProducts,
     findProduct,
-    getCount,
-    getCountOfId,
     getConnection,
     InvalidInputError,
     DBConnectionError

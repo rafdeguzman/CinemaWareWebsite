@@ -9,7 +9,7 @@ const loggerBase = pino({
         }
     },
     pino.destination({sync:true}, 'logs/server-log')
-    );
+);
 
 const logger = pinoCaller(loggerBase);
 

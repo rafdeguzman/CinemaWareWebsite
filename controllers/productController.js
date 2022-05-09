@@ -1,292 +1,95 @@
 const express = require('express');
-const req = require('express/lib/request');
-const model = require('../models/productModelMysql');
+const sql = require('../models/productModelMySql');
 const router = express.Router();
+const Handlebars = require('handlebars');
+const logger = require('../logger');
 const routeRoot = '/';
-router.post('/product', createProduct);
-router.post('/product/update', updateProduct);
-router.post('/product/delete', removeProduct);
-//router.get('/product', showProduct)
+
+let list = [];
 
 /**
-*  Handles post /product endpoint.
-*  Calls the model to add a product with the name category and price
-* 
-* @param {*} req: Express request expecting JSON body with values req.body name, category and price
-* @param {*} res: Sends a successful response, 400-level response if inputs are invalid or
-*                        a 500-level response if there is a system error
-*/
-async function createProduct(req, res) {
-    try {
-        const added = await model.addProduct(req.body.name, req.body.category, req.body.price);
-        console.log("in create product")
-        if (added) {
-            console.log("successfully added, going to render")
-            res.render("showProduct.hbs", {message: "Successfully added product", name: added.name, category: added.category, price: added.price});
-            //res.status("200");
-        } else {
-            res.render("home.hbs", 
-            {
-                alertMessage: "Failed to Add Product: Invalid Input" ,
-                formFields:[    
-                    "name",
-                    "category",
-                    "price" 
-                ]
-            });
-            res.status("400");
-            //res.send("Failed to add pokemon for unknown reason");
-        }
-    } catch (error) {
-        if (error instanceof model.DBConnectionError) {
-
-            res.status("500");
-            //res.send("System error trying to add pokemon: " + error.message);
-            res.render("home.hbs",
-            { 
-                alertMessage: "Failed to Add Product: DbConnectionError",
-                formFields:[    
-                    "name",
-                    "category",
-                    "price" 
-                ]
-            });
-        } else if (error instanceof model.InvalidInputError) {
-            res.status("400");
-            //res.send("Validation error trying to add pokemon: " + error.message);
-            res.render("home.hbs", 
-            {
-                alertMessage: "Failed to Add Product: Invalid Input" ,
-                formFields:[    
-                    "name",
-                    "category",
-                    "price" 
-                ]
-            });
-        } else {
-            res.status("500");
-            //res.send("Unexpected error trying to add pokemon: " + error.message);
-            res.render("home.hbs",
-            { 
-                alertMessage: "Failed to Add Product: Unexpected Error",
-                image:pokemonImg,
-                formFields:[    
-                    "name",
-                    "category",
-                    "price" 
-                ]
-            });
-        }
-    }
-}
-/**
-* Updates a product using specified id as key. 
-* @param {*} req: Express request expecting JSON body with values req.body name, category and price
-* @param {*} res: Sends a successful response, 400-level response if inputs are invalid or
-*                        a 500-level response if there is a system error
-*/
-async function updateProduct(req, res) {
-    try {
-        const toUpdate = await model.updateProduct(req.body.id, req.body.name, req.body.category, req.body.price);
-        console.log("in update product")
-        if (toUpdate) {
-            console.log("successfully updated, going to render")
-            res.render("showProduct.hbs", {message: "Successfully updated product", name: toUpdate.name, category: toUpdate.category, price: toUpdate.price});
-            //res.status("200");
-        } else {
-            res.render("home.hbs", 
-            {
-                alertMessage: "Failed to Update Product: Invalid Input" ,
-                formFields:[    
-                    "id",
-                    "name",
-                    "category",
-                    "price" 
-                ]
-            });
-            res.status("400");
-            //res.send("Failed to add pokemon for unknown reason");
-        }
-    } catch (error) {
-        if (error instanceof model.DBConnectionError) {
-
-            res.status("500");
-            //res.send("System error trying to add pokemon: " + error.message);
-            res.render("home.hbs",
-            { 
-                alertMessage: "Failed to Update Product: DbConnectionError",
-                image:pokemonImg,
-                formFields:[    
-                    "name",
-                    "category",
-                    "price" 
-                ]
-            });
-        } else if (error instanceof model.InvalidInputError) {
-            res.status("400");
-            res.render("home.hbs", 
-            {
-                alertMessage: "Failed to Update Product: Invalid Input" ,
-
-                formFields:[    
-                    "name",
-                    "category",
-                    "price" 
-                ]
-            });
-        } else {
-            res.status("500");
-            res.render("home.hbs",
-            { 
-                alertMessage: "Failed to Update Product: Unexpected Error",
-                formFields:[    
-                    "name",
-                    "category",
-                    "price" 
-                ]
-            });
-        }
-    }
-}
-/**
- * Removes a product using specified id as key.
- * @param {*} req: Express request expecting JSON body with values req.body name, category and price
- * @param {*} res: Sends a successful response, 400-level response if inputs are invalid or
- *                        a 500-level response if there is a system error
+ * Found on StackOverflow
+ * https://stackoverflow.com/questions/45983078/how-to-pass-a-data-array-from-express-js-to-ejs-template-and-render-them
  */
-async function removeProduct(req, res) {
-    try {
-        const toRemove = await model.removeProduct(req.body.id);
-        console.log("in remove product")
-        if (toRemove) {
-            res.render("showProduct.hbs", {message: "Successfully removed product", name: toRemove.name, category: toRemove.category, price: toRemove.price});
-            //res.status("200");
-        } else {
-            res.render("home.hbs", 
-            {
-                alertMessage: "Failed to Update Product: Invalid Input" ,
-                formFields:[    
-                    "id",
-                    "name",
-                    "category",
-                    "price" 
-                ]
-            });
-            res.status("400");
-        }
-    } catch (error) {
-        if (error instanceof model.DBConnectionError) {
 
-            res.status("500");
-            //res.send("System error trying to add pokemon: " + error.message);
-            res.render("home.hbs",
-            { 
-                alertMessage: "Failed to Update Product: DbConnectionError",
-                image:pokemonImg,
-                formFields:[    
-                    "name",
-                    "category",
-                    "price" 
-                ]
-            });
-        } else if (error instanceof model.InvalidInputError) {
-            res.status("400");
-            res.render("home.hbs", 
-            {
-                alertMessage: "Failed to Update Product: Invalid Input" ,
-
-                formFields:[    
-                    "name",
-                    "category",
-                    "price" 
-                ]
-            });
-        } else {
-            res.status("500");
-            res.render("home.hbs",
-            { 
-                alertMessage: "Failed to Update Product: Unexpected Error",
-                formFields:[    
-                    "name",
-                    "category",
-                    "price" 
-                ]
-            });
+ Handlebars.registerHelper('grouped_each', function(every, context, options) {
+    var out = "", subcontext = [], i;
+    if (context && context.length > 0) {
+        for (i = 0; i < context.length; i++) {
+            if (i > 0 && i % every === 0) {
+                out += options.fn(subcontext);
+                subcontext = [];
+            }
+            subcontext.push(context[i]);
         }
+        out += options.fn(subcontext);
     }
-}
-/**
- * Shows product's info using selected id as a key.
- * @param {*} req: Express request expecting JSON body with values req.body name, category and price
- * @param {*} res: Sends a successful response, 400-level response if inputs are invalid or
- *                        a 500-level response if there is a system error
- */
-async function showProduct(req, res) {
-    try {
-        const find = await model.findProduct(req.body.id);
-        console.log("in find product")
-        if (find) {
-            res.render("showProduct.hbs", {message: "Successfully found product", name: find.name, category: find.category, price: find.price});
-            //res.status("200");
-        } else {
-            res.render("home.hbs", 
-            {
-                alertMessage: "Failed to Find Product: Invalid Input" ,
-                formFields:[    
-                    "id",
-                    "name",
-                    "category",
-                    "price" 
-                ]
-            });
-            res.status("400");
-        }
-    } catch (error) {
-        if (error instanceof model.DBConnectionError) {
+    return out;
+});
 
-            res.status("500");
-            //res.send("System error trying to add pokemon: " + error.message);
-            res.render("home.hbs",
-            { 
-                alertMessage: "Failed to Update Product: DbConnectionError",
-                formFields:[    
-                    "name",
-                    "category",
-                    "price" 
-                ]
-            });
-        } else if (error instanceof model.InvalidInputError) {
-            res.status("400");
-            res.render("home.hbs", 
-            {
-                alertMessage: "Failed to Update Product: Invalid Input" ,
-                formFields:[    
-                    "name",
-                    "category",
-                    "price" 
-                ]
-            });
-        } else {
-            res.status("500");
-            res.render("home.hbs",
-            { 
-                alertMessage: "Failed to Update Product: Unexpected Error",
-                formFields:[    
-                    "name",
-                    "category",
-                    "price" 
-                ]
-            });
-        }
-    }
+let products = [
+    { name: 'Canon EOS Rebel T7', type: 'dslr', price: 500 },
+    { name: 'Canon EOS Rebel T6', type: 'dslr', price: 500 },
+    { name: 'Canon EOS Rebel T5', type: 'dslr', price: 500 },
+    { name: 'Logitech Video Camera', type: 'video', price: 500 },
+    { name: 'KODAK Mini Shot 2', type: 'dslr', price: 500 },
+    { name: 'Logitech Webcam', type: 'webcam', price: 500 },
+    { name: 'RED CAMERA', type: 'video', price: 2500 },
+    { name: 'Canon G16', type: 'camera', price: 500 },
+];
+
+async function showProducts(req, res){
+    const renderItems = { 
+        products: products
+    };
+    res.render("products.hbs", renderItems);
 }
 
+async function createProduct(req, res){
+    const renderItems = {
+        products: products
+    }
+    try{
+        const added = sql.addProduct(req.body.name, req.body.type, req.body.price);
+        if(added){
+            products.push({name: req.body.name, type: req.body.type, price: req.body.price})
+            res.render('products.hbs', renderItems);
+        }            
+    } catch(error){
+        logger.error(error);
+        throw new sql.DBConnectionError();
+    }
+    
+}
+
+async function populateProducts(req, res){
+    const renderItems = {
+        products: products
+    }
+    products = await sql.getProducts();
+    res.render('products.hbs', renderItems)
+}
+
+async function showCart(req, res){
+
+    if(req.body.addProduct){
+        list.push({name: req.body.name, type: req.body.type, price: req.body.price});
+    }
+    res.cookie("shoppingCart", list, {expires: new Date(Date.now() + 300000)});
+
+    const renderItems = {
+        products: list,
+    }
+    res.render("cart.hbs", renderItems);
+}
+
+router.get('/products', showProducts)
+router.post('/products', createProduct)
+router.post('/cart', showCart)
 
 module.exports = {
-    createProduct,
-    updateProduct,
-    removeProduct,
-    showProduct,
+    showProducts,
+    showCart,
     router,
     routeRoot
 }
