@@ -13,17 +13,17 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.17.3",
-    "express-handlebars": "^6.0.3",
+    "express": "^4.18.1",
+    "express-handlebars": "^6.0.5",
     "jest": "^27.5.1",
     "jest-puppeteer": "^6.1.0",
     "mysql2": "^2.3.3",
-    "pino": "^7.9.2",
+    "pino": "^7.11.0",
     "pino-caller": "^3.2.0",
     "pino-http": "^6.6.0",
-    "pino-pretty": "^7.6.0",
-    "puppeteer": "^13.5.2",
-    "supertest": "^6.2.2",
+    "pino-pretty": "^7.6.1",
+    "puppeteer": "^13.7.0",
+    "supertest": "^6.2.3",
     "validator": "^13.7.0"
   },
   "description": ""

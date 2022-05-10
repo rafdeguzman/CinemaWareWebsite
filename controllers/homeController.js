@@ -27,7 +27,7 @@ function generateSignUpPage(req, res){
         ],
         'buttonName': 'Create account'
     }
-    res.render('login.hbs', signupPageData)
+    res.render('signup.hbs', signupPageData)
 }
 
 function generateLoginPage(req, res){

@@ -2,18 +2,19 @@ const express = require("express");
 const model = require("../models/userModelMysql");
 const router = express.Router();
 const routeRoot = "/";
-router.post("/user", createUser);
+
+router.post("/signup", createUser);
 /**
  *  Handles post /user endpoint.
- *  Calls the model to add a user to the database using the given username and password.
+ *  Calls the model to add a user to the database using the given usernamem, password, firstName and lastName.
  *
- * @param {*} request: Express request expecting JSON body with values request.body.name and request.body.type
+ * @param {*} request: Express request expecting JSON body with values request.body.username, request.body.password, request.body.firstName and request.body.lastName
  * @param {*} response: Sends a successful response, 400-level response if inputs are invalid or
  *                        a 500-level response if there is a system error
  */
 async function createUser(request, response) {
   try {
-    const added = await model.addUser(request.body.username, request.body.password);
+    const added = await model.addUser(request.body.username, request.body.password, request.body.firstName, request.body.lastName);
     if (added) {
         response.render("showUser.hbs", {message: "Successfully added user", username: added.username,ListAll: false , messageAlready: added.message, showMessageAlready:added.ShowMessage});
         // 200 success
@@ -38,7 +39,7 @@ async function createUser(request, response) {
 /**
  *  Handles get /userd endpoint.
  *  Calls the model to get all a user from the database.
- * @param {*} request 
+ * @param {*} request No expected JSON body
  * @param {*} response Sends a successful response, 400-level response if inputs are invalid or
  *                        a 500-level response if there is a system error
  */
@@ -70,15 +71,15 @@ router.get("/users",listAllUser);
 
 /**
  *  Handles post /login endpoint.
- *  Calls the model to get the specific user from the database using the given username and password.
+ *  Calls the model to get the specific user from the database using the given id
  *
- * @param {*} request: Express request expecting JSON body with values request.body.username and request.body.password
+ * @param {*} request: Express request expecting JSON body with values request.body.id
  * @param {*} response: Sends a successful response, 400-level response if inputs are invalid or
  *                        a 500-level response if there is a system error
  */
-async function Login(request, response) {
+async function GetUser(request, response) {
   try {
-    const oneUsers = await model.getUser(request.body.username, request.body.password);
+    const oneUsers = await model.getUser(request.body.id);
     if (oneUsers.length > 0) {
         response.render("showUser.hbs", {message: "Successfully got the user ", list : oneUsers , ListAll: false});
         // 200 success
@@ -98,21 +99,21 @@ async function Login(request, response) {
     }
   }
 }
-router.post("/login",Login);
+router.get("/user",GetUser);
     
 /**
  *  Handles post /newpassword endpoint.
- *  Calls the model to update a specific user from the database using the given username and newpassword.
+ *  Calls the model to update a specific user from the database using the given id to modify username, password, firstName and/or lastName.
  *
- * @param {*} request: Express request expecting JSON body with values request.body.username and request.body.newpassword
+ * @param {*} request: Express request expecting JSON body with values request.body.username and request.body.password, request.body.id, request.body.firstNamd and request.body.lastName.
  * @param {*} response: Sends a successful response, 400-level response if inputs are invalid or
  *                        a 500-level response if there is a system error
  */
-async function UpdatePassword(request, response) {
+async function UpdateUser(request, response) {
   try {
-    const oneUsers = await model.UpdateUserPassword(request.body.username, request.body.newpassword);
+    const oneUsers = await model.UpdateUser(request.body.id, request.body.username, request.body.password, request.body.firstName, request.body.lastName);
     if (oneUsers) {
-        response.render("showUser.hbs", {message: "Successfully update the user ",ListAll: false});
+        response.render("showUser.hbs", {message: "Successfully updated user ",ListAll: false});
         // 200 success
     } 
     // else {
@@ -131,22 +132,22 @@ async function UpdatePassword(request, response) {
     }
   }
 }
-router.post("/newpassword",UpdatePassword);
+router.post("/newuser",UpdateUser);
 
 
 /**
  *  Handles post /removeuser endpoint.
- *  Calls the model to delete a specific user from the database using the given username
+ *  Calls the model to delete a specific user from the database using the given id
  *
- * @param {*} request: Express request expecting JSON body with values request.body.username
+ * @param {*} request: Express request expecting JSON body with values request.body.id
  * @param {*} response: Sends a successful response, 400-level response if inputs are invalid or
  *                        a 500-level response if there is a system error
  */
 async function Delete(request, response) {
   try {
-    const deleteUser = await model.DeleteUser(request.body.username);
+    const deleteUser = await model.DeleteUser(request.body.id);
     if (deleteUser) {
-        response.render("showUser.hbs", {message:  "Successfully " +request.body.username + " is deleted",ListAll: false});
+        response.render("showUser.hbs", {message:  "Successfully deleted user with id" + request.body.id,ListAll: false});
         // 200 success
     } 
     // else {
@@ -169,8 +170,11 @@ router.post("/removeuser",Delete);
 
 module.exports = {
   createUser,
-  listAllUser,Login,UpdatePassword,Delete
-  ,router,
+  listAllUser,
+  GetUser,
+  UpdateUser,
+  Delete,
+  router,
   routeRoot,
 };
 
