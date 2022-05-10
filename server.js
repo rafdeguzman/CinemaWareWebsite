@@ -8,7 +8,7 @@ const model = require("./models/productModelMySql");
 // if (!dbName) {
 //    dbName = 'product_db';
 // }
-model.initialize('product_db', true)
+model.initialize('product_db', false)
    .then(
        app.listen(port) // Run the server
    );

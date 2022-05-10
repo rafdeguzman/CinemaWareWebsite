@@ -27,6 +27,7 @@ let list = [];
     return out;
 });
 
+// hardcoded products 
 let products = [
     { name: 'Canon EOS Rebel T7', type: 'dslr', price: 500 },
     { name: 'Canon EOS Rebel T6', type: 'dslr', price: 500 },
@@ -37,13 +38,6 @@ let products = [
     { name: 'RED CAMERA', type: 'video', price: 2500 },
     { name: 'Canon G16', type: 'camera', price: 500 },
 ];
-
-async function showProducts(req, res){
-    const renderItems = { 
-        products: products
-    };
-    res.render("products.hbs", renderItems);
-}
 
 async function createProduct(req, res){
     const renderItems = {
@@ -58,20 +52,27 @@ async function createProduct(req, res){
     } catch(error){
         logger.error(error);
         throw new sql.DBConnectionError();
-    }
-    
+    }   
 }
 
 async function populateProducts(req, res){
     const renderItems = {
         products: products
     }
-    products = await sql.getProducts();
+    try{
+        const product = await sql.getProducts();
+        for(let i = 0; i < product[0].length; i++){
+            products.push({name: product[0][i].name, type: product[0][i].type, price: product[0][i].price});
+        }
+        res.render('products.hbs', renderItems);
+    } catch(error){
+        logger.error(error)
+    }
+    
     res.render('products.hbs', renderItems)
 }
 
 async function showCart(req, res){
-
     if(req.body.addProduct){
         list.push({name: req.body.name, type: req.body.type, price: req.body.price});
     }
@@ -83,9 +84,14 @@ async function showCart(req, res){
     res.render("cart.hbs", renderItems);
 }
 
-router.get('/products', showProducts)
+function updateProduct(req, res){
+    
+}
+
+router.get('/products', populateProducts)
 router.post('/products', createProduct)
 router.post('/cart', showCart)
+router.put('/products', updateProduct)
 
 module.exports = {
     showProducts,

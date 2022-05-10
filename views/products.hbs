@@ -12,8 +12,12 @@
                 <img class="card-img-top" src="images/logo_wide_white.png" alt="Card image cap">
                 <div class="card-body">
                     <h5 class="card-title">{{this.name}}</h5>
-                    <p class="card-text">{{this.price}}</p>
-                    <input type="submit" value="Add to Cart" class="btn btn-primary">
+                    <p class="card-text">${{this.price}}</p>
+                    <div class="btn-group mr-2" role="group" aria-label="groupedbutton">
+                        <button class="btn btn-secondary">Update</button>
+                        <button type="submit" class="btn btn-secondary">Add to Cart</button>
+                        <button class="btn btn-secondary">Delete</button>
+                    </div>
                 </div>
             </div>
         </form>
