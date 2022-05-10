@@ -158,7 +158,7 @@ async function Login(request, response) {
       // 200 success
     } else {
       response.render("error.hbs", {
-        alertMessage: "Failed to may user not exist",
+        alertMessage: "Failed user may not exist",
       });
     }
   } catch (error) {
@@ -170,7 +170,7 @@ async function Login(request, response) {
     } else if (error instanceof model.InvalidInputError) {
       //response.status("400");
       response.render("error.hbs", {
-        alertMessage: "Failed to may user not exist",
+        alertMessage: "Failed user may not exist",
       });
     } else {
       //response.status("500");
