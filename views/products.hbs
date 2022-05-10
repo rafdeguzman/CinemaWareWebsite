@@ -14,7 +14,7 @@
                     <h5 class="card-title">{{this.name}}</h5>
                     <p class="card-text">${{this.price}}</p>
                     <div class="btn-group mr-2" role="group" aria-label="groupedbutton">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateModal">
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateModal" data-bs-whatever="{{this.id}}">
                             Update
                         </button>
                         <button type="submit" class="btn btn-secondary">Add to Cart</button>
@@ -34,7 +34,7 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="updateModalLabel" style="color: #151414">Update Product</h5>
+        <h5 class="modal-title" id="updateModalLabel" style="color: #151414" >Update Product ID: </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body" style="color: #151414">
