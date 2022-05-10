@@ -27,26 +27,17 @@ let list = [];
     return out;
 });
 
-// hardcoded products 
-let products = [
-    { name: 'Canon EOS Rebel T7', type: 'dslr', price: 500 },
-    { name: 'Canon EOS Rebel T6', type: 'dslr', price: 500 },
-    { name: 'Canon EOS Rebel T5', type: 'dslr', price: 500 },
-    { name: 'Logitech Video Camera', type: 'video', price: 500 },
-    { name: 'KODAK Mini Shot 2', type: 'dslr', price: 500 },
-    { name: 'Logitech Webcam', type: 'webcam', price: 500 },
-    { name: 'RED CAMERA', type: 'video', price: 2500 },
-    { name: 'Canon G16', type: 'camera', price: 500 },
-];
+// products array to be passed in to the view for rendering
+let products = [];
 
 async function createProduct(req, res){
     const renderItems = {
         products: products
     }
     try{
-        const added = sql.addProduct(req.body.name, req.body.type, req.body.price);
+        const added = await sql.addProduct(req.body.name, req.body.type, req.body.price);
         if(added){
-            products.push({name: req.body.name, type: req.body.type, price: req.body.price})
+            populateProducts();
             res.render('products.hbs', renderItems);
         }            
     } catch(error){
@@ -55,22 +46,52 @@ async function createProduct(req, res){
     }   
 }
 
-async function populateProducts(req, res){
+async function showProducts(req, res){
     const renderItems = {
         products: products
     }
     try{
         const product = await sql.getProducts();
         for(let i = 0; i < product[0].length; i++){
-            products.push({name: product[0][i].name, type: product[0][i].type, price: product[0][i].price});
+            if(!containsObject({name: product[0][i].name}, products))
+                products.push({id: product[0][i].id, name: product[0][i].name, type: product[0][i].type, price: product[0][i].price});
+            else
+                logger.info('item already exists, not adding to array')
         }
         res.render('products.hbs', renderItems);
     } catch(error){
         logger.error(error)
     }
-    
     res.render('products.hbs', renderItems)
 }
+
+async function populateProducts(){
+    const renderItems = {
+        products: products
+    }
+    try{
+        const product = await sql.getProducts();
+        for(let i = 0; i < product[0].length; i++){
+            if(!containsObject({name: product[0][i].name}, products))
+                products.push({id: product[0][i].id, name: product[0][i].name, type: product[0][i].type, price: product[0][i].price});
+            else
+                logger.info('item already exists, not adding to array')
+        }
+    } catch(error){
+        logger.error(error)
+    }
+}
+
+function containsObject(obj, list) {
+    var i;
+    for (i = 0; i < list.length; i++) {
+        if (list[i].name === obj.name) {
+            return true;
+        }
+    }
+    return false;
+}
+
 
 async function showCart(req, res){
     if(req.body.addProduct){
@@ -88,13 +109,20 @@ function updateProduct(req, res){
     
 }
 
-router.get('/products', populateProducts)
-router.post('/products', createProduct)
-router.post('/cart', showCart)
-router.put('/products', updateProduct)
+// var updateModal = document.getElementById('updateModal');
+// updateModal.addEventListener('show.bs.modal', (event)=>{
+//     // button that triggered the model
+//     var button = event.relatedTarget;
+//     var recipient = button.getAttribute('data-recipient');
+// })
+
+router.get('/products', showProducts);
+router.post('/products', createProduct);
+router.post('/cart', showCart);
+router.put('/products', updateProduct);
 
 module.exports = {
-    showProducts,
+    populateProducts,
     showCart,
     router,
     routeRoot

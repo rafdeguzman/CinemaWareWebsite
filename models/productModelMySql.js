@@ -40,6 +40,11 @@ async function initialize(dbname, reset) {
 
         await connection.execute(sqlQuery);
         logger.info("Table products created/exists");
+
+        if(reset){
+            createProductData();
+            logger.info('Product data created')
+        }
     }
     catch (error) {
         logger.error(error.message);
@@ -156,7 +161,7 @@ async function findProduct(id) {
  * 
  */
 async function getProducts(){
-    const sqlQuery = 'SELECT name, type, price FROM products'
+    const sqlQuery = 'SELECT id, name, type, price FROM products'
     try{
         const rows = await connection.execute(sqlQuery);
         logger.info('Items retrieved')
@@ -176,6 +181,27 @@ function validate(name, type, price){
         return false;
 }
 
+/**
+ * Fills the database with data from the products array
+ */
+function createProductData(){
+    for(let i = 0; i < products.length; i++){
+        addProduct(products[i].name, products[i].type, products[i].price);
+    }
+}
+
+// products array for testing data
+let products = [
+    { name: 'Canon EOS Rebel T7', type: 'dslr', price: 500 },
+    { name: 'Canon EOS Rebel T6', type: 'dslr', price: 500 },
+    { name: 'Canon EOS Rebel T5', type: 'dslr', price: 500 },
+    { name: 'Logitech Video Camera', type: 'video', price: 500 },
+    { name: 'KODAK Mini Shot 2', type: 'dslr', price: 500 },
+    { name: 'Logitech Webcam', type: 'webcam', price: 500 },
+    { name: 'RED CAMERA', type: 'video', price: 2500 },
+    { name: 'Canon G16', type: 'camera', price: 500 },
+];
+
 module.exports = {
     initialize,
     addProduct,
@@ -184,6 +210,7 @@ module.exports = {
     getProducts,
     findProduct,
     getConnection,
+    createProductData,
     InvalidInputError,
     DBConnectionError
 }

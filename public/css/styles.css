@@ -199,6 +199,9 @@ body, html {
     margin-bottom: 10px; /* Added */
     background-color: #070707;
 }
+.darktxt{
+    color: #151414;
+}
 
 .btn-dark{
     padding: 1rem, 1.5rem;

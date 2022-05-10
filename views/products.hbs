@@ -8,15 +8,19 @@
             <input type="hidden" name="type" value="{{this.type}}">
             <input type="hidden" name="price" value="{{this.price}}">
             <div class="card" style="width: 18rem;">
-                <p>product type: {{this.type}}</p>
+                <p>product type: {{this.type}} product id: {{this.id}}</p>
                 <img class="card-img-top" src="images/logo_wide_white.png" alt="Card image cap">
                 <div class="card-body">
                     <h5 class="card-title">{{this.name}}</h5>
                     <p class="card-text">${{this.price}}</p>
                     <div class="btn-group mr-2" role="group" aria-label="groupedbutton">
-                        <button class="btn btn-secondary">Update</button>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateModal">
+                            Update
+                        </button>
                         <button type="submit" class="btn btn-secondary">Add to Cart</button>
-                        <button class="btn btn-secondary">Delete</button>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateModal">
+                           Delete
+                        </button>
                     </div>
                 </div>
             </div>
@@ -25,16 +29,50 @@
     </div>
     {{/grouped_each}}
 
-    <form action="/products" method="post" role ="form" enctype="application/x-www-form-urlencoded">
-        <legend>Enter Product info</legend>
+<!-- Update -->
+<div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="updateModalLabel" style="color: #151414">Update Product</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="color: #151414">
+        <!-- Form for update goes here -->
+        <form action="/products" method="put" role="form" enctype="application/x-www-form-urlencoded">
+            <legend class="darktxt">Enter Product info</legend>
+            
+            <label class="darktxt" for="name">Name:</label><br>
+            <input type="text" id="name" name="name"><br>
 
-        <label for="name">Name:</label><br>
+            <label class="darktxt" for="type">type:</label><br>
+            <input type="text" id="type" name="type"><br>
+
+            <label class="darktxt" for="price">Price:</label><br>
+            <input type="text" id="price" name="price"><br>
+
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    <form action="/products" method="post" role ="form" enctype="application/x-www-form-urlencoded">
+        <legend class="darktxt">Enter Product info</legend>
+
+        <label class="darktxt" for="name">Name:</label><br>
         <input type="text" id="name" name="name"><br>
 
-        <label for="type">type:</label><br>
+        <label class="darktxt" for="type">type:</label><br>
         <input type="text" id="type" name="type"><br>
 
-        <label for="price">Price:</label><br>
+        <label class="darktxt" for="price">Price:</label><br>
         <input type="text" id="price" name="price"><br>
 
         <button type="submit" class="btn btn-primary">Submit</button>
