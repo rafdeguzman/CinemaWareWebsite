@@ -3,10 +3,6 @@ const model = require("../models/userModelMysql");
 const router = express.Router();
 const routeRoot = "/";
 
-<<<<<<< HEAD
-=======
-router.post("/signupPage", createUser);
->>>>>>> 582fdc44da6035abd9beadbf0673bf3c2cac469e
 /**
  *  Handles post /user endpoint.
  *  Calls the model to add a user to the database using the given usernamem, password, firstName and lastName.
