@@ -224,6 +224,7 @@ let products = [
     { name: 'Canon G16', type: 'camera', price: 500 },
 ];
 
+
 /**
  * Adds the given user to the db if valid and returns that
  *  user as an object
