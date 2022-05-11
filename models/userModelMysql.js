@@ -25,7 +25,7 @@ async function initialize(dbname, reset) {
     connection = await mysql.createConnection({
       host: "localhost",
       user: "root",
-      port: "10000",
+      port: "10025",
       password: "pass",
       database: dbname,
     });
@@ -40,6 +40,11 @@ async function initialize(dbname, reset) {
       "CREATE TABLE IF NOT EXISTS users(id int AUTO_INCREMENT, username VARCHAR(50), password VARCHAR(50), firstName VARCHAR(50), lastName VARCHAR(50), PRIMARY KEY(id))";
     await connection.execute(sqlQuery);
     logger.info("Table users created/exists");
+    
+    sqlQuery =
+    "INSERT INTO users (username, password, firstName, lastName) VALUES ('admin','admin','admin','admin')"
+    await connection.execute(sqlQuery);
+    logger.info("Add Admin");
     
   } catch (error) {
     logger.error(error.message);
@@ -72,18 +77,16 @@ function getConnection() {
  */
 async function addUser(username, password, firstName, lastName) {
     username = username.trim();
-  if (!validate.isValidUserName(username)) {
-    throw new InvalidInputError();
-  }
-  if (!validate.isValidNames(firstName, lastName)) {
-    throw new InvalidInputError();
-  }
-  if(isUserFound(username)){
+  // if (!validate.isValidUserName(username)) {
+  //   throw new InvalidInputError();
+  // }
+  // if (!validate.isValidNames(firstName, lastName)) {
+  //   throw new InvalidInputError();
+  // }
+  if( await isUserFound(username)){
       return false;
   }
-  const sqlQuery =
-    'INSERT INTO users (username, password, firstName, lastName) VALUES ("' +
-    username + '","' + password + '","' + firstName + '", "' + lastName + ')';
+  let sqlQuery = "INSERT INTO users (username, password, firstName, lastName) VALUES ('"+username+"', '"+password+"', '"+firstName+"', '"+lastName+"')";
   try {
     await connection.execute(sqlQuery);
     logger.info("User added");
@@ -101,7 +104,7 @@ async function addUser(username, password, firstName, lastName) {
  * @throws InvalidInputError, DBConnectionError
  */
 async function getAllUsers() {
-  const sqlQuery = "select * from users";
+  let sqlQuery = "select * from users";
   var result = "";
 
   try {
@@ -128,7 +131,7 @@ async function getAllUsers() {
  * @returns {Object} array of object that are user with single user inside array
  */
 async function getUser(id) {
-  const sqlQuery =
+  let sqlQuery =
     'select * from users where id = ' + id;
     var result = "";
 
@@ -170,7 +173,7 @@ async function UpdateUser(id, username, password, firstName, lastName) {
   var result = "";
 
   //SQL query to check if user with that id exists
-  const sqlQueryCheck = 'SELECT * FROM users WHERE id = ' + id;
+  let sqlQueryCheck = 'SELECT * FROM users WHERE id = ' + id;
   var result = "";
 
   try {
@@ -187,7 +190,7 @@ async function UpdateUser(id, username, password, firstName, lastName) {
       throw new InvalidInputError();
   }
 
-  const sqlQuery = 'UPDATE users SET firstName = "' + firstName + '", lastName = "' + lastName + '", username = "' +username+'", password = "' +password+'" WHERE id = ' + id;
+  let sqlQuery = 'UPDATE users SET firstName = "' + firstName + '", lastName = "' + lastName + '", username = "' +username+'", password = "' +password+'" WHERE id = ' + id;
 
   try {
       result = await connection.execute(sqlQuery);
@@ -209,7 +212,7 @@ async function UpdateUser(id, username, password, firstName, lastName) {
  */
 async function DeleteUser(id) {
     //SQL query to find user with id given
-    const sqlQueryCheck = 'SELECT * FROM users WHERE id = ' + id;
+    let sqlQueryCheck = 'SELECT * FROM users WHERE id = ' + id;
     var result = "";
 
     try {
@@ -227,7 +230,7 @@ async function DeleteUser(id) {
     }
 
     //SQL query to delete the user with the given id
-    const sqlQuery = 'DELETE FROM users WHERE id = ' + id;
+    let sqlQuery = 'DELETE FROM users WHERE id = ' + id;
 
     try {
         await connection.execute(sqlQuery);
@@ -248,15 +251,19 @@ async function DeleteUser(id) {
  * @param {*} username username of user.  Must Match the username in db
  * @returns {Booolen} if it found  return true 
  */
-async function isUserFound(usernameInput) {
-  const sqlQuery = "SELECT username as count FROM users WHERE username = '" + usernameInput +"'";
-  const [row, field] = await connection.execute(sqlQuery);
-  logger.info("User found");
-  if (row.length > 0) {
-    return true;
-  } else {
-    return false;
-  }
+ async function isUserFound(usernameInput) {
+   try {
+    let sqlQuery = "SELECT username as count FROM users WHERE username = '" + usernameInput +"'";
+    const [row, field] = await connection.execute(sqlQuery);
+    logger.info("User found");
+    if (row.length > 0) {
+      return true;
+    } else {
+      return false;
+    } 
+   } catch (error) {
+     console.log(error);
+   }
 }
 
 module.exports = {

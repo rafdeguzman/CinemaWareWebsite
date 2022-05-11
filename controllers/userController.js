@@ -3,7 +3,6 @@ const model = require("../models/userModelMysql");
 const router = express.Router();
 const routeRoot = "/";
 
-router.post("/signup", createUser);
 /**
  *  Handles post /user endpoint.
  *  Calls the model to add a user to the database using the given usernamem, password, firstName and lastName.
@@ -14,27 +13,27 @@ router.post("/signup", createUser);
  */
 async function createUser(request, response) {
   try {
-    const added = await model.addUser(request.body.username, request.body.password, request.body.firstName, request.body.lastName);
+    const added = await model.addUser(request.body.username, request.body.password, request.body.firstname, request.body.lastname);
     if (added) {
-        response.render("showUser.hbs", {message: "Successfully added user", username: added.username,ListAll: false , messageAlready: added.message, showMessageAlready:added.ShowMessage});
+        response.render("home.hbs");
         // 200 success
     } else {
-        response.render("home.hbs", {alertMessage: "Failed!! User Already Exist"});
+        response.render("error.hbs", {alertMessage: "Failed!! User Already Exist"});
     }
   } catch (error) {
     if (error instanceof model.DBConnectionError) {
         //response.status("500");
-      response.render("home.hbs", {alertMessage: "Failed to add User for DataBase Connection Error",image:"https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pok%C3%A9mon_logo.svg",formFields:[ "name","type"]});
+      response.render("error.hbs", {alertMessage: "Failed to add User for DataBase Connection Error",image:"https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pok%C3%A9mon_logo.svg",formFields:[ "name","type"]});
     } else if (error instanceof model.InvalidInputError) {
       //response.status("400");
-      response.render("home.hbs", {alertMessage: "Failed to add User for invaild Input",image:"https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pok%C3%A9mon_logo.svg",formFields:[ "name","type"]});
+      response.render("error.hbs", {alertMessage: "Failed to add User for invaild Input",image:"https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pok%C3%A9mon_logo.svg",formFields:[ "name","type"]});
     } else {
       //response.status("500");
-      response.render("home.hbs", {alertMessage: "Failed to add User for  DataBase Connection Error",image:"https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pok%C3%A9mon_logo.svg"});
+      response.render("error.hbs", {alertMessage: "Failed to add User for  DataBase Connection Error",image:"https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pok%C3%A9mon_logo.svg"});
     }
   }
 }
-
+router.post("/signup", createUser);
 
 /**
  *  Handles get /userd endpoint.
@@ -51,18 +50,18 @@ async function listAllUser(request, response) {
         response.render("showUser.hbs", {message: "Successfully get all user ", list : allUsers , ListAll: true});
         // 200 success
     } else {
-        response.render("home.hbs", {alterMessage: "Failed to get all user" });
+        response.render("error.hbs", {alterMessage: "Failed to get all user" });
     }
   } catch (error) {
     if (error instanceof model.DBConnectionError) {
         //response.status("500");
-      response.render("home.hbs", {alertMessage: "Failed to get all user for DataBase Connection Error",});
+      response.render("error.hbs", {alertMessage: "Failed to get all user for DataBase Connection Error",});
     } else if (error instanceof model.InvalidInputError) {
       //response.status("400");
-      response.render("home.hbs", {alertMessage: "Failed to get all user"});
+      response.render("error.hbs", {alertMessage: "Failed to get all user"});
     } else {
       //response.status("500");
-      response.render("home.hbs", {alertMessage: "Failed to get all user for DataBase Connection Error"});
+      response.render("error.hbs", {alertMessage: "Failed to get all user for DataBase Connection Error"});
     }
   }
 }
@@ -89,13 +88,13 @@ async function GetUser(request, response) {
   } catch (error) {
     if (error instanceof model.DBConnectionError) {
         //response.status("500");
-      response.render("home.hbs", {alertMessage: "Failed to get user for DataBase Connection Error",});
+      response.render("error.hbs", {alertMessage: "Failed to get user for DataBase Connection Error",});
     } else if (error instanceof model.InvalidInputError) {
       //response.status("400");
-      response.render("home.hbs", {alertMessage: "Failed to may user not exist",});
+      response.render("error.hbs", {alertMessage: "Failed to may user not exist",});
     } else {
       //response.status("500");
-      response.render("home.hbs", {alertMessage: "Failed to get user for DataBase Connection Error"});
+      response.render("error.hbs", {alertMessage: "Failed to get user for DataBase Connection Error"});
     }
   }
 }
