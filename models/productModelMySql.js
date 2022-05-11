@@ -45,13 +45,13 @@ async function initialize(dbname, reset) {
         logger.info("Table products created/exists");
 
         sqlQuery =
-        "CREATE TABLE IF NOT EXISTS users(id int AUTO_INCREMENT, username VARCHAR(50), password VARCHAR(50), PRIMARY KEY(id))";
+        "CREATE TABLE IF NOT EXISTS users(id int AUTO_INCREMENT, username VARCHAR(50), password VARCHAR(50), firstName VARCHAR(50), lastName VARCHAR(50), PRIMARY KEY(id))";
         await connection.execute(sqlQuery);
         logger.info("Table users created/exists");
         
         if(!isUserFound('admin')){
             sqlQuery =
-            "INSERT IGNORE INTO users (username, password) VALUES ('admin','admin')"
+            "INSERT IGNORE INTO users (username, password, firstName, lastName) VALUES ('admin','admin','admin','admin')"
             await connection.execute(sqlQuery);
             logger.info("Admin User Created");
         } else{
@@ -63,7 +63,7 @@ async function initialize(dbname, reset) {
             logger.info('Product data created')
 
             sqlQuery =
-            "INSERT IGNORE INTO users (username, password) VALUES ('admin','admin')"
+            "INSERT IGNORE INTO users (username, password, firstName, lastName) VALUES ('admin','admin','admin','admin')"
             await connection.execute(sqlQuery);
             logger.info("Admin User Created");
         }
@@ -231,31 +231,31 @@ let products = [
  *
  * @param {string} username username of user.  Must be alphabetical only with no spaces.(see validateUtils.isValid)
  * @param {string} password password of user.  Can be any combination of string
- * @returns {Object} User that was added successfully {username: string, password: string}
+ * @param {string} firstName firstName of user.  Must be contained of letters only.
+ * @param {string} lastName  lastName of user.  Must be contained of letters only.
+ * @returns {Object} User that was added successfully
  * @throws InvalidInputError, DBConnectionError
  */
- async function addUser(username, password) {
-    username = username.trim();
-  // if (!validate.isValid(username)) {
-  //   throw new InvalidInputError();
-  // }
-  if(isUserFound(username)){
-      return false;
-  }
-  const sqlQuery =
-    'INSERT INTO users (username, password) VALUES ("' +
-    username +
-    '","' +
-    password +
-    '")';
-  try {
-    await connection.execute(sqlQuery);
-    logger.info("User added");
-    return { username: username, password: password };
-  } catch (error) {
-    logger.error(error);
-    throw new DBConnectionError();
-  }
+ async function addUser(username, password, firstName, lastName) {
+  username = username.trim();
+// if (!validate.isValidUserName(username)) {
+//   throw new InvalidInputError();
+// }
+// if (!validate.isValidNames(firstName, lastName)) {
+//   throw new InvalidInputError();
+// }
+if( await isUserFound(username)){
+    return false;
+}
+let sqlQuery = "INSERT INTO users (username, password, firstName, lastName) VALUES ('"+username+"', '"+password+"', '"+firstName+"', '"+lastName+"')";
+try {
+  await connection.execute(sqlQuery);
+  logger.info("User added");
+  return { username: username, password: password, firstName: firstName, lastName: lastName };
+} catch (error) {
+  logger.error(error);
+  throw new DBConnectionError();
+}
 }
 
 /**
@@ -265,16 +265,24 @@ let products = [
  * @throws InvalidInputError, DBConnectionError
  */
  async function getAllUsers() {
-    const sqlQuery = "select username from users";
-    try {
-      const [row, field] = await connection.execute(sqlQuery);
-      logger.info("Got all user");
-      return row;
-    } catch (error) {
+  let sqlQuery = "select username from users";
+  var result = "";
+
+  try {
+      result = await connection.execute(sqlQuery);
+      logger.info("Users read");
+  } catch (error) {
       logger.error(error);
       throw new DBConnectionError();
-    }
   }
+
+  if (result[0].length == 0) {
+      logger.error("No data in database")
+      throw new InvalidInputError();
+  }
+
+  return result[0];
+}
 
 /**
  * Get the specific a user to the db if valid and returns that

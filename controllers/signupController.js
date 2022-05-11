@@ -14,7 +14,7 @@ async function showSignUp(req, res){
         ],
         'buttonName': 'Create account'
     }
-    res.render("login.hbs", signUpPageData);
+    res.render("signup.hbs", signUpPageData);
 }
 
 router.get('/signup', showSignUp);
