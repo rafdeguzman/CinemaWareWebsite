@@ -1,10 +1,10 @@
 const express = require("express");
-const model = require("../models/userModelMysql");
+const model = require("../models/productModelMySql");
 const router = express.Router();
 const routeRoot = "/";
-router.post("/user", createUser);
 const uuid = require('uuid');
 
+router.post("/user", createUser);
 
 const sessions = {};
 
@@ -69,24 +69,18 @@ async function createUser(request, response) {
       //response.status("500");
       response.render("home.hbs", {
         alertMessage: "Failed to add User for DataBase Connection Error",
-        image:
-          "https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pok%C3%A9mon_logo.svg",
         formFields: ["name", "type"],
       });
     } else if (error instanceof model.InvalidInputError) {
       //response.status("400");
       response.render("home.hbs", {
         alertMessage: "Failed to add User for invaild Input",
-        image:
-          "https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pok%C3%A9mon_logo.svg",
         formFields: ["name", "type"],
       });
     } else {
       //response.status("500");
       response.render("home.hbs", {
-        alertMessage: "Failed to add User for  DataBase Connection Error",
-        image:
-          "https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pok%C3%A9mon_logo.svg",
+        alertMessage: "Failed to add User for DataBase Connection Error",
       });
     }
   }

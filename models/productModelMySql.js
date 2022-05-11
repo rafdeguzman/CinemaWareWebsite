@@ -96,7 +96,7 @@ async function initialize(dbname, reset) {
  * @throws InvalidInputError, DBConnectionError
  */
 async function addProduct(name, type, price) {
-    if (!validate(name, type, price)) {
+    if (!validateProduct(name, type, price)) {
         throw new InvalidInputError();
     }
     const sqlQuery = 'INSERT INTO products (name, type, price) VALUES (\"'
@@ -122,7 +122,7 @@ async function addProduct(name, type, price) {
  * @throws InvalidInputError, DBConnectionError
  */
 async function updateProduct(id, name, type, price) {
-    if (!validate(name, type, price)) {
+    if (!validateProduct(name, type, price)) {
         throw new InvalidInputError();
     }
     if(!getCount(id) > 0){
@@ -196,7 +196,7 @@ async function getProducts(){
 
 const types = ['dslr', 'video', 'webcam', 'camera'];
 
-function validate(name, type, price){
+function validateProduct(name, type, price){
     if(types.includes(type) && price > 0)
         return true;
     else
@@ -235,9 +235,9 @@ let products = [
  */
  async function addUser(username, password) {
     username = username.trim();
-  if (!validate.isValid(username)) {
-    throw new InvalidInputError();
-  }
+  // if (!validate.isValid(username)) {
+  //   throw new InvalidInputError();
+  // }
   if(isUserFound(username)){
       return false;
   }
@@ -285,9 +285,9 @@ let products = [
  */
  async function getUser(username, password) {
     username = username.trim();
-  if (!validate.isValid(username)) {
-    throw new InvalidInputError();
-  }
+  // if (!validate.isValid(username)) {
+  //   throw new InvalidInputError();
+  // }
   const sqlQuery =
     'select username from users where username = "' +
     username +
@@ -314,9 +314,9 @@ let products = [
  */
 async function UpdateUserPassword(originalUsername, updatePassword) {
     originalUsername = originalUsername.trim();
-  if (!validate.isValid(originalUsername)) {
-    throw new InvalidInputError();
-  }
+  // if (!validate.isValid(originalUsername)) {
+  //   throw new InvalidInputError();
+  // }
   let sqlQuery =
     'select password from users where username = "' + originalUsername + '"';
   try {
@@ -352,9 +352,9 @@ async function UpdateUserPassword(originalUsername, updatePassword) {
  */
  async function DeleteUser(originalUsername) {
     originalUsername = originalUsername.trim();
-  if (!validate.isValid(originalUsername)) {
-    throw new InvalidInputError();
-  }
+  // if (!validate.isValid(originalUsername)) {
+  //   throw new InvalidInputError();
+  // }
 
   let sqlQuery =
     'select password from users where username = "' + originalUsername + '"';
@@ -404,6 +404,11 @@ module.exports = {
     findProduct,
     getConnection,
     createProductData,
+    addUser,
+    getAllUsers,
+    getUser,
+    UpdateUserPassword,
+    DeleteUser,
     InvalidInputError,
     DBConnectionError
 }
