@@ -92,8 +92,8 @@ function containsObject(obj, list) {
     return false;
 }
 
-
 async function showCart(req, res){
+
     if(req.body.addProduct){
         list.push({name: req.body.name, type: req.body.type, price: req.body.price});
     }
@@ -104,6 +104,17 @@ async function showCart(req, res){
     }
     res.render("cart.hbs", renderItems);
 }
+async function deleteItemFromCart(req, res){
+    
+    let name = req.body.name
+    let index = list.findIndex(item => { return item.name === name; });
+    list.splice(index, 1);
+
+    let renderItems = {
+        name: name
+    }
+    res.render("removeCartItemSuccess.hbs", renderItems);
+}
 
 function updateProduct(req, res){
     
@@ -111,8 +122,10 @@ function updateProduct(req, res){
 
 router.get('/products', showProducts);
 router.post('/products', createProduct);
-router.post('/cart', showCart);
 router.put('/products', updateProduct);
+
+router.post('/cart', showCart);
+router.delete('/cart/remove', deleteItemFromCart)
 
 module.exports = {
     populateProducts,

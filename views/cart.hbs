@@ -3,10 +3,17 @@
     <div id="cart">
         {{#each products}}
         <div class="cartItem">
-            <h5>{{this.name}}</h5>
-            <p>{{this.type}}</p>
-            <p>{{this.price}}</p>
+            <h5 class="cartItemName">{{this.name}}</h5>
+            <p class="cartItemType">Type: {{this.type}}</p>
+            <p class="cartitemPrice">CND${{this.price}}</p>
+            <form action="/cart/remove" method="post" class="removeFromCart">
+                <input type="hidden" name="_method" value="DELETE">
+                <input type="hidden" name="name" value="{{this.name}}">
+                <input type="submit" class="btn btn-primary" value="Remove Item from Cart">
+            </form>
         </div>
         {{/each}}
+        
     </div>
+    <button id="submitCart" class="btn btn-primary">Confirm Purchase</button>
 </body>

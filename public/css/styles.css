@@ -233,5 +233,47 @@ body, html {
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
-    
   }
+  
+  body{
+    background-color: #282828;
+}
+
+#cart{
+    border: #EAEAEA solid 7px;
+    display: flex;
+    flex-direction: column;
+}
+
+.cartitemName{
+    grid-area: name;
+}
+
+.cartitemType{
+    grid-area: type;
+}
+
+.cartitemPrice{
+    grid-area: price;
+}
+
+.removeFromCart{
+    grid-area: del;
+}
+
+#submitCart{
+    margin-top: 20px;
+}
+
+.cartItem{
+  padding: 5px;
+  border: #070707 solid 5px;
+  margin: 5px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  grid-template-areas: 
+      "name . ."
+      "type . ."
+      "price . del";
+} 
