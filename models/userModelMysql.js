@@ -77,6 +77,7 @@ function getConnection() {
  */
 async function addUser(username, password, firstName, lastName) {
     username = username.trim();
+<<<<<<< HEAD
   // if (!validate.isValidUserName(username)) {
   //   throw new InvalidInputError();
   // }
@@ -87,6 +88,18 @@ async function addUser(username, password, firstName, lastName) {
       return false;
   }
   let sqlQuery = "INSERT INTO users (username, password, firstName, lastName) VALUES ('"+username+"', '"+password+"', '"+firstName+"', '"+lastName+"')";
+=======
+  if (!validate.isValidUserName(username)) {
+    throw new InvalidInputError();
+  }
+  if (!validate.isValidNames(firstName, lastName)) {
+    throw new InvalidInputError();
+  }
+
+  const sqlQuery =
+    'INSERT INTO users (username, password, firstName, lastName) VALUES ("' +
+    username + '","' + password + '","' + firstName + '", "' + lastName + '")';
+>>>>>>> 582fdc44da6035abd9beadbf0673bf3c2cac469e
   try {
     await connection.execute(sqlQuery);
     logger.info("User added");
@@ -244,6 +257,7 @@ async function DeleteUser(id) {
     return id;
 }
 
+<<<<<<< HEAD
 /**
  * Get the specific a user to the db if valid and returns that
  *  user as an object
@@ -265,6 +279,8 @@ async function DeleteUser(id) {
      console.log(error);
    }
 }
+=======
+>>>>>>> 582fdc44da6035abd9beadbf0673bf3c2cac469e
 
 module.exports = {
   initialize,
