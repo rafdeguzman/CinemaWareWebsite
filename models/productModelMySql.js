@@ -31,19 +31,41 @@ async function initialize(dbname, reset) {
         });
 
         if (reset) {
-            const dropQuery = "DROP TABLE IF EXISTS products";
+            let dropQuery = "DROP TABLE IF EXISTS products";
             await connection.execute(dropQuery);
             logger.info("Table products dropped");
+            dropQuery = "DROP TABLE IF EXISTS users";
+            await connection.execute(dropQuery);
+            logger.info("Table users dropped");
         }
         // Create table if it doesn't exist
-        const sqlQuery = 'CREATE TABLE IF NOT EXISTS products(id int AUTO_INCREMENT, name VARCHAR(50), type VARCHAR(50), price FLOAT, PRIMARY KEY(id))';
+        let sqlQuery = 'CREATE TABLE IF NOT EXISTS products(id int AUTO_INCREMENT, name VARCHAR(50), type VARCHAR(50), price FLOAT, PRIMARY KEY(id))';
 
         await connection.execute(sqlQuery);
         logger.info("Table products created/exists");
 
+        sqlQuery =
+        "CREATE TABLE IF NOT EXISTS users(id int AUTO_INCREMENT, username VARCHAR(50), password VARCHAR(50), PRIMARY KEY(id))";
+        await connection.execute(sqlQuery);
+        logger.info("Table users created/exists");
+        
+        if(!isUserFound('admin')){
+            sqlQuery =
+            "INSERT IGNORE INTO users (username, password) VALUES ('admin','admin')"
+            await connection.execute(sqlQuery);
+            logger.info("Admin User Created");
+        } else{
+            logger.info('Admin already exists');
+        }
+
         if(reset){
             createProductData();
             logger.info('Product data created')
+
+            sqlQuery =
+            "INSERT IGNORE INTO users (username, password) VALUES ('admin','admin')"
+            await connection.execute(sqlQuery);
+            logger.info("Admin User Created");
         }
     }
     catch (error) {
@@ -202,6 +224,177 @@ let products = [
     { name: 'Canon G16', type: 'camera', price: 500 },
 ];
 
+/**
+ * Adds the given user to the db if valid and returns that
+ *  user as an object
+ *
+ * @param {string} username username of user.  Must be alphabetical only with no spaces.(see validateUtils.isValid)
+ * @param {string} password password of user.  Can be any combination of string
+ * @returns {Object} User that was added successfully {username: string, password: string}
+ * @throws InvalidInputError, DBConnectionError
+ */
+ async function addUser(username, password) {
+    username = username.trim();
+  if (!validate.isValid(username)) {
+    throw new InvalidInputError();
+  }
+  if(isUserFound(username)){
+      return false;
+  }
+  const sqlQuery =
+    'INSERT INTO users (username, password) VALUES ("' +
+    username +
+    '","' +
+    password +
+    '")';
+  try {
+    await connection.execute(sqlQuery);
+    logger.info("User added");
+    return { username: username, password: password };
+  } catch (error) {
+    logger.error(error);
+    throw new DBConnectionError();
+  }
+}
+
+/**
+ * Get all the users from the db and returns that
+ *  array of object that are user even if the array is empty
+ * @returns {Object} array of object that are user
+ * @throws InvalidInputError, DBConnectionError
+ */
+ async function getAllUsers() {
+    const sqlQuery = "select username from users";
+    try {
+      const [row, field] = await connection.execute(sqlQuery);
+      logger.info("Got all user");
+      return row;
+    } catch (error) {
+      logger.error(error);
+      throw new DBConnectionError();
+    }
+  }
+
+/**
+ * Get the specific a user to the db if valid and returns that
+ *  user as an object
+ *
+ * @param {*} username username of user.  Must Match the username in db
+ * @param {*} password password of user.  Must Match the password in db
+ * @returns {Object} array of object that are user with single user inside array
+ */
+ async function getUser(username, password) {
+    username = username.trim();
+  if (!validate.isValid(username)) {
+    throw new InvalidInputError();
+  }
+  const sqlQuery =
+    'select username from users where username = "' +
+    username +
+    '" and password = "' +
+    password +
+    '"';
+  try {
+    const [row, field] = await connection.execute(sqlQuery);
+    logger.info("Got the user");
+    return row;
+  } catch (error) {
+    logger.error(error);
+    throw new DBConnectionError();
+  }
+}
+
+/**
+ * Update the specific  user password to the db if valid user and returns that
+ *  true
+ *
+ * @param {*} originalUsername username of user.  Must Match the username in db
+ * @param {*} updatePassword update user password
+ * @returns {Object} boolean true if successful updated , otherwise false.
+ */
+async function UpdateUserPassword(originalUsername, updatePassword) {
+    originalUsername = originalUsername.trim();
+  if (!validate.isValid(originalUsername)) {
+    throw new InvalidInputError();
+  }
+  let sqlQuery =
+    'select password from users where username = "' + originalUsername + '"';
+  try {
+    const [row, field] = await connection.execute(sqlQuery);
+    logger.info("User update");
+    if (row.length > 0) {
+      sqlQuery =
+        'update users set password = "' +
+        updatePassword +
+        '" where username = "' +
+        originalUsername +
+        '"';
+      await connection.execute(sqlQuery);
+      return true;
+    } else {
+      throw new InvalidInputError();
+    }
+  } catch (error) {
+    logger.error(error);
+    if (error instanceof InvalidInputError) {
+      throw new InvalidInputError();
+    }
+    throw new DBConnectionError();
+  }
+}
+
+/**
+ * delete the specific  user by there username to the db if valid user and returns that
+ *  true
+ *
+ * @param {*} username username of user.  Must Match the username in db
+ * @returns {Object} boolean true if successful delete , otherwise false.
+ */
+ async function DeleteUser(originalUsername) {
+    originalUsername = originalUsername.trim();
+  if (!validate.isValid(originalUsername)) {
+    throw new InvalidInputError();
+  }
+
+  let sqlQuery =
+    'select password from users where username = "' + originalUsername + '"';
+  try {
+    const [row, field] = await connection.execute(sqlQuery);
+    logger.info("User delete");
+    if (row.length > 0) {
+      sqlQuery =
+        'delete from users where username = "' + originalUsername + '"';
+      await connection.execute(sqlQuery);
+      return true;
+    } else {
+      throw new InvalidInputError();
+    }
+  } catch (error) {
+    logger.error(error);
+    if (error instanceof InvalidInputError) {
+      throw new InvalidInputError();
+    }
+    throw new DBConnectionError();
+  }
+}
+
+/**
+ * Get the specific a user to the db if valid returns true if found, false otherwise
+ *
+ * @param {*} username username of user.  Must Match the username in db
+ * @returns {Booolen} if it found  return true 
+ */
+async function isUserFound(usernameInput) {
+    const sqlQuery = "SELECT username as count FROM users WHERE username = '" + usernameInput +"'";
+    const [row, field] = await connection.execute(sqlQuery);
+    logger.info("User found");
+    if (row.length > 0) {
+      return true;
+    } else {
+      return false;
+    }
+}
+  
 module.exports = {
     initialize,
     addProduct,
