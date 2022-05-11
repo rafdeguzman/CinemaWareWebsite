@@ -109,13 +109,6 @@ function updateProduct(req, res){
     
 }
 
-// var updateModal = document.getElementById('updateModal');
-// updateModal.addEventListener('show.bs.modal', (event)=>{
-//     // button that triggered the model
-//     var button = event.relatedTarget;
-//     var recipient = button.getAttribute('data-recipient');
-// })
-
 router.get('/products', showProducts);
 router.post('/products', createProduct);
 router.post('/cart', showCart);
