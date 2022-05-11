@@ -78,12 +78,10 @@ async function addUser(username, password, firstName, lastName) {
   if (!validate.isValidNames(firstName, lastName)) {
     throw new InvalidInputError();
   }
-  if(isUserFound(username)){
-      return false;
-  }
+
   const sqlQuery =
     'INSERT INTO users (username, password, firstName, lastName) VALUES ("' +
-    username + '","' + password + '","' + firstName + '", "' + lastName + ')';
+    username + '","' + password + '","' + firstName + '", "' + lastName + '")';
   try {
     await connection.execute(sqlQuery);
     logger.info("User added");
@@ -241,23 +239,6 @@ async function DeleteUser(id) {
     return id;
 }
 
-/**
- * Get the specific a user to the db if valid and returns that
- *  user as an object
- *
- * @param {*} username username of user.  Must Match the username in db
- * @returns {Booolen} if it found  return true 
- */
-async function isUserFound(usernameInput) {
-  const sqlQuery = "SELECT username as count FROM users WHERE username = '" + usernameInput +"'";
-  const [row, field] = await connection.execute(sqlQuery);
-  logger.info("User found");
-  if (row.length > 0) {
-    return true;
-  } else {
-    return false;
-  }
-}
 
 module.exports = {
   initialize,

@@ -20,8 +20,8 @@ function generateSignUpPage(req, res){
         'title': 'Sign Up',
         'ignore': true,
         loginFields:[
-            'firstname',
-            'lastname',
+            'firstName',
+            'lastName',
             'username',
             'password'
         ],
