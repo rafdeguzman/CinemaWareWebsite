@@ -39,7 +39,7 @@ async function initialize(dbname, reset) {
             logger.info("Table users dropped");
         }
         // Create table if it doesn't exist
-        let sqlQuery = 'CREATE TABLE IF NOT EXISTS products(id int AUTO_INCREMENT, name VARCHAR(50), type VARCHAR(50), price FLOAT, PRIMARY KEY(id))';
+        let sqlQuery = 'CREATE TABLE IF NOT EXISTS products(id int AUTO_INCREMENT, name VARCHAR(50), type VARCHAR(50), price FLOAT, image VARCHAR(255), PRIMARY KEY(id))';
 
         await connection.execute(sqlQuery);
         logger.info("Table products created/exists");
@@ -95,16 +95,16 @@ async function initialize(dbname, reset) {
  * @returns {Object} Product that was added successfully {name: string, type: string}
  * @throws InvalidInputError, DBConnectionError
  */
-async function addProduct(name, type, price) {
+async function addProduct(name, type, price, image) {
     if (!validateProduct(name, type, price)) {
         throw new InvalidInputError();
     }
-    const sqlQuery = 'INSERT INTO products (name, type, price) VALUES (\"'
-        + name + '\",\"' + type + '\", \"' + price + '\")';
+    const sqlQuery = 'INSERT INTO products (name, type, price, image) VALUES (\"'
+        + name + '\",\"' + type + '\", \"' + price + '\", \"' + image + '\")';
     try {
         await connection.execute(sqlQuery);
         logger.info("Product added");        
-        return { "name": name, "type": type, "price": price };  //works and returns object
+        return { "name": name, "type": type, "price": price, "image": image};  //works and returns object
     } catch (error) {
         logger.error(error);
         throw new DBConnectionError();
@@ -121,7 +121,7 @@ async function addProduct(name, type, price) {
  * @returns {Object} Product that was added successfully {name: string, type: string}
  * @throws InvalidInputError, DBConnectionError
  */
-async function updateProduct(id, name, type, price) {
+async function updateProduct(id, name, type, price, image) {
     if (!validateProduct(name, type, price)) {
         throw new InvalidInputError();
     }
@@ -129,11 +129,11 @@ async function updateProduct(id, name, type, price) {
         throw new InvalidInputError();
     }
     const sqlQuery = 'UPDATE products SET name = \"'
-        + name + '\", type = \"' + type + '\", price = \"' + price + '\" WHERE id = \"' + id + '\"';
+        + name + '\", type = \"' + type + '\", price = \"' + price + '\", image = \"' + image + '\" WHERE id = \"' + id + '\"';
     try {
         await connection.execute(sqlQuery);
         logger.info("Product with id " + id + " updated");        
-        return { "name": name, "type": type, "price": price };  //works and returns object
+        return { "name": name, "type": type, "price": price, "image": image };  //works and returns object
     } catch (error) {
         logger.error(error);
         throw new DBConnectionError();
@@ -166,7 +166,7 @@ async function findProduct(id) {
         .then((x) => {
             logger.info("Product with id " + id + " selected");        
         let object = x[0][0];
-        return { "name": object.name, "type": object.type, "price": object.price };  //works and returns object
+        return { "name": object.name, "type": object.type, "price": object.price, "image": object.image };  //works and returns object
         })
         .catch((error) => {
             throw new InvalidInputError();
@@ -183,7 +183,7 @@ async function findProduct(id) {
  * 
  */
 async function getProducts(){
-    const sqlQuery = 'SELECT id, name, type, price FROM products'
+    const sqlQuery = 'SELECT id, name, type, price, image FROM products'
     try{
         const rows = await connection.execute(sqlQuery);
         logger.info('Items retrieved')
@@ -208,20 +208,19 @@ function validateProduct(name, type, price){
  */
 function createProductData(){
     for(let i = 0; i < products.length; i++){
-        addProduct(products[i].name, products[i].type, products[i].price);
+        addProduct(products[i].name, products[i].type, products[i].price, products[i].image);
     }
 }
 
 // products array for testing data
 let products = [
-    { name: 'Canon EOS Rebel T7', type: 'dslr', price: 500 },
-    { name: 'Canon EOS Rebel T6', type: 'dslr', price: 500 },
-    { name: 'Canon EOS Rebel T5', type: 'dslr', price: 500 },
-    { name: 'Logitech Video Camera', type: 'video', price: 500 },
-    { name: 'KODAK Mini Shot 2', type: 'dslr', price: 500 },
-    { name: 'Logitech Webcam', type: 'webcam', price: 500 },
-    { name: 'RED CAMERA', type: 'video', price: 2500 },
-    { name: 'Canon G16', type: 'camera', price: 500 },
+    { name: 'Canon EOS Rebel T7', type: 'dslr', price: 500, image: 'https://www.bhphotovideo.com/images/images1500x1500/canon_2727c002_eos_rebel_t7_dslr_1461734.jpg' },
+    { name: 'Canon EOS Rebel T6', type: 'dslr', price: 500, image: 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/5086/5086534cv11d.jpg' },
+    { name: 'Canon EOS Rebel T5', type: 'dslr', price: 500, image: 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/4470/4470028_sd.jpg' },
+    { name: 'Logitech C920', type: 'webcam', price: 500, image: 'https://resource.logitech.com/w_800,c_lpad,ar_16:9,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/logitech/en/products/webcams/c920/gallery/c920-glamour-lg.png?v=1'},
+    { name: 'KODAK Mini Shot 2', type: 'dslr', price: 500, image: 'http://cdn.shopify.com/s/files/1/0484/6180/7774/products/3_c171baf2-9ca8-411f-a910-7877d0e61a24_1200x1200.jpg?v=1651471479' },
+    { name: 'RED CAMERA', type: 'video', price: 2500, image: 'https://www.bhphotovideo.com/images/images2500x2500/red_digital_cinema_710_0329_red_ranger_with_helium_1505274.jpg' },
+    { name: 'Canon G16', type: 'camera', price: 500, image: 'https://m.media-amazon.com/images/I/71prwdWC4zL._AC_SY355_.jpg'},
 ];
 
 

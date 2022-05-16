@@ -35,7 +35,7 @@ async function createProduct(req, res){
         products: products
     }
     try{
-        const added = await sql.addProduct(req.body.name, req.body.type, req.body.price);
+        const added = await sql.addProduct(req.body.name, req.body.type, req.body.price, req.body.image);
         if(added){
             populateProducts();
             res.render('products.hbs', renderItems);
@@ -54,7 +54,7 @@ async function showProducts(req, res){
         const product = await sql.getProducts();
         for(let i = 0; i < product[0].length; i++){
             if(!containsObject({name: product[0][i].name}, products))
-                products.push({id: product[0][i].id, name: product[0][i].name, type: product[0][i].type, price: product[0][i].price});
+                products.push({id: product[0][i].id, name: product[0][i].name, type: product[0][i].type, price: product[0][i].price, image: product[0][i].image});
             else
                 logger.info('item already exists, not adding to array')
         }
@@ -73,7 +73,7 @@ async function populateProducts(){
         const product = await sql.getProducts();
         for(let i = 0; i < product[0].length; i++){
             if(!containsObject({name: product[0][i].name}, products))
-                products.push({id: product[0][i].id, name: product[0][i].name, type: product[0][i].type, price: product[0][i].price});
+                products.push({id: product[0][i].id, name: product[0][i].name, type: product[0][i].type, price: product[0][i].price, image: product[0][i].image});
             else
                 logger.info('item already exists, not adding to array')
         }

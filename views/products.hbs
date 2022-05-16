@@ -9,7 +9,12 @@
             <input type="hidden" name="price" value="{{this.price}}">
             <div class="card" style="width: 18rem;">
                 <p>product type: {{this.type}} product id: {{this.id}}</p>
+                {{#if this.image}}
+                <img class="card-img-top" src={{this.image}} alt="Card image cap" onerror="this.src= 'images/logo_wide_white.png'">
+                {{/if}}
+                {{#else}}
                 <img class="card-img-top" src="images/logo_wide_white.png" alt="Card image cap">
+                {{/else}}
                 <div class="card-body">
                     <h5 class="card-title">{{this.name}}</h5>
                     <p class="card-text">${{this.price}}</p>
