@@ -125,15 +125,12 @@ async function updateProduct(id, name, type, price, image) {
     if (!validateProduct(name, type, price)) {
         throw new InvalidInputError();
     }
-    if(!getCount(id) > 0){
-        throw new InvalidInputError();
-    }
     const sqlQuery = 'UPDATE products SET name = \"'
         + name + '\", type = \"' + type + '\", price = \"' + price + '\", image = \"' + image + '\" WHERE id = \"' + id + '\"';
     try {
         await connection.execute(sqlQuery);
         logger.info("Product with id " + id + " updated");        
-        return { "name": name, "type": type, "price": price, "image": image };  //works and returns object
+        return { "id": id, "name": name, "type": type, "price": price, "image": image };  //works and returns object
     } catch (error) {
         logger.error(error);
         throw new DBConnectionError();

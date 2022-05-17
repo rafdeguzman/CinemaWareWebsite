@@ -46,7 +46,23 @@ async function createProduct(req, res){
     }   
 }
 
+async function updateProduct(req, res){
+    const renderItems = {
+        products: products
+    }
+    try{
+        const updated = await sql.updateProduct(req.body.id, req.body.name, req.body.type, req.body.price, req.body.image);
+        if(updated){
+            res.redirect('/products')
+        }            
+    } catch(error){
+        logger.error(error);
+        throw new sql.DBConnectionError();
+    }   
+}
+
 async function showProducts(req, res){
+    products = [];
     const renderItems = {
         products: products
     }
@@ -66,13 +82,14 @@ async function showProducts(req, res){
 }
 
 async function populateProducts(){
+    products = [];
     const renderItems = {
         products: products
     }
     try{
         const product = await sql.getProducts();
         for(let i = 0; i < product[0].length; i++){
-            if(!containsObject({name: product[0][i].name}, products))
+            if(!containsObject({name: product[0][i].id}, products))
                 products.push({id: product[0][i].id, name: product[0][i].name, type: product[0][i].type, price: product[0][i].price, image: product[0][i].image});
             else
                 logger.info('item already exists, not adding to array')
@@ -116,19 +133,17 @@ async function deleteItemFromCart(req, res){
     res.render("removeCartItemSuccess.hbs", renderItems);
 }
 
-function updateProduct(req, res){
-    
-}
 
 router.get('/products', showProducts);
 router.post('/products', createProduct);
-router.put('/products', updateProduct);
+router.post('/products/update', updateProduct);
 
 router.post('/cart', showCart);
-router.delete('/cart/remove', deleteItemFromCart)
+router.post('/cart/remove', deleteItemFromCart);
 
 module.exports = {
     populateProducts,
+    updateProduct,
     showCart,
     router,
     routeRoot
