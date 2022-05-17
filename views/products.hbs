@@ -19,7 +19,7 @@
                     <h5 class="card-title">{{this.name}}</h5>
                     <p class="card-text">${{this.price}}</p>
                     <div class="btn-group mr-2" role="group" aria-label="groupedbutton">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateModal" data-bs-whatever="{{this.id}}">
+                        <button id="update-btn{{this.id}}" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateModal" data-bs-whatever="{{this.id}}">
                             Update
                         </button>
                         <button type="submit" class="btn btn-secondary">Add to Cart</button>
@@ -44,9 +44,14 @@
       </div>
       <div class="modal-body" style="color: #151414">
         <!-- Form for update goes here -->
+
         <form action="/products" method="put" role="form" enctype="application/x-www-form-urlencoded">
             <legend class="darktxt">Enter Product info</legend>
             
+            <label class="darktxt" for="id">Id: </label><br>
+            <input class="darktxt" type="number" id="modalId" value="" readonly="true"><br>
+
+
             <label class="darktxt" for="name">Name:</label><br>
             <input type="text" id="name" name="name"><br>
 
@@ -61,12 +66,24 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
       </div>
     </div>
   </div>
 </div>
 
+<script type="text/javascript">
+  var updateModal = document.getElementById('updateModal')
+  updateModal.addEventListener('show.bs.modal', function (event) {
+  var button = event.relatedTarget
+  var recipient = button.getAttribute('data-bs-whatever')
+  var modalTitle = updateModal.querySelector('.modal-title')
+  var formId = updateModal.querySelector('#modalId')
+  modalTitle.textContent = 'Update Product Id: ' + recipient
+  formId.value = recipient;
+
+})
+
+</script>
 
     <form action="/products" method="post" role ="form" enctype="application/x-www-form-urlencoded">
         <legend class="darktxt">Enter Product info</legend>
