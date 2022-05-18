@@ -285,6 +285,12 @@ let products = [
   if (!valid.validateUsername(username)) {
     throw new InvalidInputError();
   }
+  if (!valid.isValidNames(firstName, lastName)) {
+    throw new InvalidInputError("Invalid first Name or Last Name. Must only contain letters.");
+  }
+  if (!valid.isValidPassword(password)) {
+    throw new InvalidInputError("Invalid Password. Must contain a minimum of 8 characters, 1 uppercase, 1 lowercase and 1 symbol.");
+  }
   if( await isUserFound(username)){
     return false;
 }
@@ -366,6 +372,9 @@ async function UpdateUserPassword(originalUsername, updatePassword) {
     originalUsername = originalUsername.trim();
   if (!valid.validateUsername(originalUsername)) {
     throw new InvalidInputError();
+  }
+  if (!validate.isValidPassword(updatePassword)) {
+    throw new InvalidInputError("Invalid Password. Must contain a minimum of 8 characters, 1 uppercase, 1 lowercase and 1 symbol.");
   }
   let sqlQuery =
     'select password from users where username = "' + originalUsername + '"';
