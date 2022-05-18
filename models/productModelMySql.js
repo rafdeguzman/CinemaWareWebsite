@@ -65,6 +65,11 @@ async function initialize(dbname, reset) {
         await connection.execute(sqlQuery);
         logger.info("Table productOrder created/exists");
 
+        // create orderHistory table 
+        sqlQuery = 'CREATE TABLE IF NOT EXISTS orderHistory(userId int, orderId int, PRIMARY KEY(userId, orderId), FOREIGN KEY(userId) REFERENCES users(id), FOREIGN KEY(orderId) REFERENCES orders(id))'
+        await connection.execute(sqlQuery);
+        logger.info("Table orderHistory created/exists");
+
         if(!isUserFound('admin')){
             sqlQuery =
             "INSERT IGNORE INTO users (username, password, firstName, lastName) VALUES ('admin','admin','admin','admin')"
@@ -216,6 +221,34 @@ function validateProduct(name, type, price){
     else
         return false;
 }
+
+async function createOrder(list, userId) {
+  try {
+      await connection.execute("INSERT INTO orders (orderDate) VALUES(GETDATE());");
+      logger.info("Order was created.");
+      let orderId = connection.execute("SELECT MAX(id) FROM orders;");
+      let productId;
+
+      for (let i = 0; i < list.length; i++) {
+          productId = await connection.execute("SELECT id FROM products WHERE name = '" + list[i].name + "';");
+          existingProduct = await connection.execute("SELECT * FROM productOrder WHERE productId = " + productId + " AND orderId = " + orderId + ";");
+          if (!existingProduct) {
+              await connection.execute("UPDATE productOrder SET quantity = quantity + 1 WHERE productId = " + productId + " AND orderId = " + orderId + ";");
+          }
+          else {
+              await connection.execute("INSERT INTO productOrder (productId, orderId, quantity) VALUES(" + productId + ", " + orderId + ", 1);");
+          }
+      }
+      logger.info("Items added to the ProductOrder table.");
+      
+      await connection.execute('INSERT INTO orderHistory (UserId, OrderId) VALUES(' + userId + ', ' + orderId + ');')
+
+  } catch (error) {
+      logger.error(error);
+      throw new DBConnectionError();
+  }
+}
+
 
 /**
  * Fills the database with data from the products array
@@ -431,6 +464,7 @@ module.exports = {
     getUser,
     UpdateUserPassword,
     DeleteUser,
+    createOrder,
     InvalidInputError,
     DBConnectionError
 }
