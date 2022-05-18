@@ -1,15 +1,14 @@
 const express = require('express');
 const app = express();
-const logger = require('./logger');
 const {engine} = require('express-handlebars');
-const bodyParser = require('body-parser')
+const logger = require('./logger');
+const methodOverride = require('method-override');
+const bodyParser = require('body-parser');
 const pinohttp = require('pino-http');
-
-logger.info("Creating app");
 
 // Tell the app to use handlebars templating engine.  
 //   Configure the engine to use a simple .hbs extension to simplify file naming
-app.engine('hbs', engine({ extname: '.hbs'}));
+app.engine('hbs', engine({ extname: '.hbs' }));
 app.set('view engine', 'hbs');
 app.set('views', './views');  // indicate folder for views
 
@@ -20,26 +19,34 @@ app.use(bodyParser.urlencoded({
 }));
 
 app.use(express.json());
-app.use(express.static('public'))
+app.use(methodOverride(function (req, res) {
+  if (req.body && typeof req.body === 'object' && '_method' in req.body) {
+    // look in urlencoded POST bodies and delete it​
+    const method = req.body._method;
+    delete req.body._method;
+    return method;
+  }
+}));
+app.use(express.static('public'));
 
 // Http request logs will go to same location as main logger
 const httpLogger = pinohttp({
-    logger: logger
+  logger: logger
 });
 app.use(httpLogger);
 
 // Make sure errorController is last!
-const controllers = ['homeController', 'userController', 'errorController'] 
+const controllers = ['homeController', 'productController', 'loginController', 'signupController', 'userController', 'errorController']
 
 // Register routes from all controllers 
 //  (Assumes a flat directory structure and common 'routeRoot' / 'router' export)
 controllers.forEach((controllerName) => {
-    try {
-        const controllerRoutes = require('./controllers/' + controllerName);
-        app.use(controllerRoutes.routeRoot, controllerRoutes.router);
-    } catch (error) {
-        //fail gracefully if no routes for this controller
-        logger.error(error);
-    }    
+  try {
+    const controllerRoutes = require('./controllers/' + controllerName);
+    app.use(controllerRoutes.routeRoot, controllerRoutes.router);
+  } catch (error) {
+    //fail gracefully if no routes for this controller
+    logger.error(error);
+  }
 })
 module.exports = app

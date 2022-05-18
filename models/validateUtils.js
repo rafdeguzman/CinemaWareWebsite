@@ -31,8 +31,19 @@ function isValidUserName(username) {
    }
 }
 
+function isValidPassword(password){
+    const num = validator.isStrongPassword(password);
+    if (num == false){
+        return false;
+    }
+    else{
+        return true;
+    }
+}
+
 module.exports = {
    isValidUserName, 
-   isValidNames
+   isValidNames,
+   isValidPassword
 }
 
