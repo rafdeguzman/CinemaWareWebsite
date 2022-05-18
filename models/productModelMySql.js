@@ -1,6 +1,7 @@
 const mysql = require('mysql2/promise');
 const logger = require('../logger');
 const { connect } = require('../app');
+const valid = require('./validateUtils');
 var connection;
 
 /**  Error for 400-level issues */
@@ -31,7 +32,16 @@ async function initialize(dbname, reset) {
         });
 
         if (reset) {
-            let dropQuery = "DROP TABLE IF EXISTS products";
+            let dropQuery = "DROP TABLE IF EXISTS productOrder";
+            await connection.execute(dropQuery);
+            logger.info("Table productOrder dropped");
+            dropQuery = "DROP TABLE IF EXISTS orderHistory";
+            await connection.execute(dropQuery);
+            logger.info("Table orderHistory dropped");
+            dropQuery = "DROP TABLE IF EXISTS orders";
+            await connection.execute(dropQuery);
+            logger.info("Table orders dropped");
+            dropQuery = "DROP TABLE IF EXISTS products";
             await connection.execute(dropQuery);
             logger.info("Table products dropped");
             dropQuery = "DROP TABLE IF EXISTS users";
@@ -39,7 +49,7 @@ async function initialize(dbname, reset) {
             logger.info("Table users dropped");
         }
         // Create table if it doesn't exist
-        let sqlQuery = 'CREATE TABLE IF NOT EXISTS products(id int AUTO_INCREMENT, name VARCHAR(50), type VARCHAR(50), price FLOAT, PRIMARY KEY(id))';
+        let sqlQuery = 'CREATE TABLE IF NOT EXISTS products(id int AUTO_INCREMENT, name VARCHAR(50), type VARCHAR(50), price FLOAT, image VARCHAR(255), PRIMARY KEY(id))';
 
         await connection.execute(sqlQuery);
         logger.info("Table products created/exists");
@@ -49,6 +59,21 @@ async function initialize(dbname, reset) {
         await connection.execute(sqlQuery);
         logger.info("Table users created/exists");
         
+        // create order table query
+        sqlQuery = 'CREATE TABLE IF NOT EXISTS orders(id int AUTO_INCREMENT, orderDate date, PRIMARY KEY(id))'
+        await connection.execute(sqlQuery);
+        logger.info("Table orders created/exists");
+        
+        // create productOrder table
+        sqlQuery = 'CREATE TABLE IF NOT EXISTS productOrder(productId int, orderId int, quantity int, PRIMARY KEY(productId, orderId), FOREIGN KEY(productId) REFERENCES products(id), FOREIGN KEY(orderId) REFERENCES orders(id))'
+        await connection.execute(sqlQuery);
+        logger.info("Table productOrder created/exists");
+
+        // create orderHistory table 
+        sqlQuery = 'CREATE TABLE IF NOT EXISTS orderHistory(userId int, orderId int, PRIMARY KEY(userId, orderId), FOREIGN KEY(userId) REFERENCES users(id), FOREIGN KEY(orderId) REFERENCES orders(id))'
+        await connection.execute(sqlQuery);
+        logger.info("Table orderHistory created/exists");
+
         if(!isUserFound('admin')){
             sqlQuery =
             "INSERT IGNORE INTO users (username, password, firstName, lastName) VALUES ('admin','admin','admin','admin')"
@@ -57,7 +82,7 @@ async function initialize(dbname, reset) {
         } else{
             logger.info('Admin already exists');
         }
-
+        
         if(reset){
             createProductData();
             logger.info('Product data created')
@@ -95,16 +120,16 @@ async function initialize(dbname, reset) {
  * @returns {Object} Product that was added successfully {name: string, type: string}
  * @throws InvalidInputError, DBConnectionError
  */
-async function addProduct(name, type, price) {
-    if (!validateProduct(name, type, price)) {
+async function addProduct(name, type, price, image) {
+    if (!valid.validateProduct(type, price)) {
         throw new InvalidInputError();
     }
-    const sqlQuery = 'INSERT INTO products (name, type, price) VALUES (\"'
-        + name + '\",\"' + type + '\", \"' + price + '\")';
+    const sqlQuery = 'INSERT INTO products (name, type, price, image) VALUES (\"'
+        + name + '\",\"' + type + '\", \"' + price + '\", \"' + image + '\")';
     try {
         await connection.execute(sqlQuery);
         logger.info("Product added");        
-        return { "name": name, "type": type, "price": price };  //works and returns object
+        return { "name": name, "type": type, "price": price, "image": image};  //works and returns object
     } catch (error) {
         logger.error(error);
         throw new DBConnectionError();
@@ -121,19 +146,16 @@ async function addProduct(name, type, price) {
  * @returns {Object} Product that was added successfully {name: string, type: string}
  * @throws InvalidInputError, DBConnectionError
  */
-async function updateProduct(id, name, type, price) {
-    if (!validateProduct(name, type, price)) {
-        throw new InvalidInputError();
-    }
-    if(!getCount(id) > 0){
+async function updateProduct(id, name, type, price, image) {
+    if (!valid.validateProduct(type, price)) {
         throw new InvalidInputError();
     }
     const sqlQuery = 'UPDATE products SET name = \"'
-        + name + '\", type = \"' + type + '\", price = \"' + price + '\" WHERE id = \"' + id + '\"';
+        + name + '\", type = \"' + type + '\", price = \"' + price + '\", image = \"' + image + '\" WHERE id = \"' + id + '\"';
     try {
         await connection.execute(sqlQuery);
         logger.info("Product with id " + id + " updated");        
-        return { "name": name, "type": type, "price": price };  //works and returns object
+        return { "id": id, "name": name, "type": type, "price": price, "image": image };  //works and returns object
     } catch (error) {
         logger.error(error);
         throw new DBConnectionError();
@@ -149,6 +171,7 @@ async function deleteProduct(id) {
     try {
         await connection.execute(sqlQuery);
         logger.info("Product with id " + id + " deleted");        
+        return true;
     } catch (error) {
         logger.error(error);
         throw new DBConnectionError();
@@ -166,7 +189,7 @@ async function findProduct(id) {
         .then((x) => {
             logger.info("Product with id " + id + " selected");        
         let object = x[0][0];
-        return { "name": object.name, "type": object.type, "price": object.price };  //works and returns object
+        return { "name": object.name, "type": object.type, "price": object.price, "image": object.image };  //works and returns object
         })
         .catch((error) => {
             throw new InvalidInputError();
@@ -183,7 +206,7 @@ async function findProduct(id) {
  * 
  */
 async function getProducts(){
-    const sqlQuery = 'SELECT id, name, type, price FROM products'
+    const sqlQuery = 'SELECT id, name, type, price, image FROM products'
     try{
         const rows = await connection.execute(sqlQuery);
         logger.info('Items retrieved')
@@ -194,42 +217,63 @@ async function getProducts(){
     }
 }
 
-const types = ['dslr', 'video', 'webcam', 'camera'];
 
-function validateProduct(name, type, price){
-    if(types.includes(type) && price > 0)
-        return true;
-    else
-        return false;
+
+async function createOrder(list, userId) {
+  try {
+      await connection.execute("INSERT INTO orders (orderDate) VALUES(GETDATE());");
+      logger.info("Order was created.");
+      let orderId = connection.execute("SELECT MAX(id) FROM orders;");
+      let productId;
+
+      for (let i = 0; i < list.length; i++) {
+          productId = await connection.execute("SELECT id FROM products WHERE name = '" + list[i].name + "';");
+          existingProduct = await connection.execute("SELECT * FROM productOrder WHERE productId = " + productId + " AND orderId = " + orderId + ";");
+          if (!existingProduct) {
+              await connection.execute("UPDATE productOrder SET quantity = quantity + 1 WHERE productId = " + productId + " AND orderId = " + orderId + ";");
+          }
+          else {
+              await connection.execute("INSERT INTO productOrder (productId, orderId, quantity) VALUES(" + productId + ", " + orderId + ", 1);");
+          }
+      }
+      logger.info("Items added to the ProductOrder table.");
+      
+      await connection.execute('INSERT INTO orderHistory (UserId, OrderId) VALUES(' + userId + ', ' + orderId + ');')
+
+  } catch (error) {
+      logger.error(error);
+      throw new DBConnectionError();
+  }
 }
+
 
 /**
  * Fills the database with data from the products array
  */
 function createProductData(){
     for(let i = 0; i < products.length; i++){
-        addProduct(products[i].name, products[i].type, products[i].price);
+        addProduct(products[i].name, products[i].type, products[i].price, products[i].image);
     }
 }
 
 // products array for testing data
 let products = [
-    { name: 'Canon EOS Rebel T7', type: 'dslr', price: 500 },
-    { name: 'Canon EOS Rebel T6', type: 'dslr', price: 500 },
-    { name: 'Canon EOS Rebel T5', type: 'dslr', price: 500 },
-    { name: 'Logitech Video Camera', type: 'video', price: 500 },
-    { name: 'KODAK Mini Shot 2', type: 'dslr', price: 500 },
-    { name: 'Logitech Webcam', type: 'webcam', price: 500 },
-    { name: 'RED CAMERA', type: 'video', price: 2500 },
-    { name: 'Canon G16', type: 'camera', price: 500 },
+    { name: 'Canon EOS Rebel T7', type: 'dslr', price: 500, image: 'https://www.bhphotovideo.com/images/images1500x1500/canon_2727c002_eos_rebel_t7_dslr_1461734.jpg' },
+    { name: 'Canon EOS Rebel T6', type: 'dslr', price: 500, image: 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/5086/5086534cv11d.jpg' },
+    { name: 'Canon EOS Rebel T5', type: 'dslr', price: 500, image: 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/4470/4470028_sd.jpg' },
+    { name: 'Logitech C920', type: 'webcam', price: 500, image: 'https://resource.logitech.com/w_800,c_lpad,ar_16:9,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/logitech/en/products/webcams/c920/gallery/c920-glamour-lg.png?v=1'},
+    { name: 'KODAK Mini Shot 2', type: 'dslr', price: 500, image: 'http://cdn.shopify.com/s/files/1/0484/6180/7774/products/3_c171baf2-9ca8-411f-a910-7877d0e61a24_1200x1200.jpg?v=1651471479' },
+    { name: 'RED CAMERA', type: 'video', price: 2500, image: 'https://www.bhphotovideo.com/images/images2500x2500/red_digital_cinema_710_0329_red_ranger_with_helium_1505274.jpg' },
+    { name: 'Canon G16', type: 'camera', price: 500, image: 'https://m.media-amazon.com/images/I/71prwdWC4zL._AC_SY355_.jpg'},
 ];
+
 
 
 /**
  * Adds the given user to the db if valid and returns that
  *  user as an object
  *
- * @param {string} username username of user.  Must be alphabetical only with no spaces.(see validateUtils.isValid)
+ * @param {string} username username of user.  Must be alphanumeric.
  * @param {string} password password of user.  Can be any combination of string
  * @param {string} firstName firstName of user.  Must be contained of letters only.
  * @param {string} lastName  lastName of user.  Must be contained of letters only.
@@ -238,13 +282,16 @@ let products = [
  */
  async function addUser(username, password, firstName, lastName) {
   username = username.trim();
-// if (!validate.isValidUserName(username)) {
-//   throw new InvalidInputError();
-// }
-// if (!validate.isValidNames(firstName, lastName)) {
-//   throw new InvalidInputError();
-// }
-if( await isUserFound(username)){
+  if (!valid.validateUsername(username)) {
+    throw new InvalidInputError();
+  }
+  if (!valid.isValidNames(firstName, lastName)) {
+    throw new InvalidInputError("Invalid first Name or Last Name. Must only contain letters.");
+  }
+  if (!valid.isValidPassword(password)) {
+    throw new InvalidInputError("Invalid Password. Must contain a minimum of 8 characters, 1 uppercase, 1 lowercase and 1 symbol.");
+  }
+  if( await isUserFound(username)){
     return false;
 }
 let sqlQuery = "INSERT INTO users (username, password, firstName, lastName) VALUES ('"+username+"', '"+password+"', '"+firstName+"', '"+lastName+"')";
@@ -294,11 +341,11 @@ try {
  */
  async function getUser(username, password) {
     username = username.trim();
-  // if (!validate.isValid(username)) {
-  //   throw new InvalidInputError();
-  // }
+  if (!valid.validateUsername(username)) {
+    throw new InvalidInputError();
+  }
   const sqlQuery =
-    'select username from users where username = "' +
+    'select username, id from users where username = "' +
     username +
     '" and password = "' +
     password +
@@ -323,9 +370,12 @@ try {
  */
 async function UpdateUserPassword(originalUsername, updatePassword) {
     originalUsername = originalUsername.trim();
-  // if (!validate.isValid(originalUsername)) {
-  //   throw new InvalidInputError();
-  // }
+  if (!valid.validateUsername(originalUsername)) {
+    throw new InvalidInputError();
+  }
+  if (!validate.isValidPassword(updatePassword)) {
+    throw new InvalidInputError("Invalid Password. Must contain a minimum of 8 characters, 1 uppercase, 1 lowercase and 1 symbol.");
+  }
   let sqlQuery =
     'select password from users where username = "' + originalUsername + '"';
   try {
@@ -361,9 +411,9 @@ async function UpdateUserPassword(originalUsername, updatePassword) {
  */
  async function DeleteUser(originalUsername) {
     originalUsername = originalUsername.trim();
-  // if (!validate.isValid(originalUsername)) {
-  //   throw new InvalidInputError();
-  // }
+  if (!valid.validateUsername(originalUsername)) {
+    throw new InvalidInputError();
+  }
 
   let sqlQuery =
     'select password from users where username = "' + originalUsername + '"';
@@ -418,6 +468,7 @@ module.exports = {
     getUser,
     UpdateUserPassword,
     DeleteUser,
+    createOrder,
     InvalidInputError,
     DBConnectionError
 }

@@ -22,4 +22,4 @@ router.get('/signup', showSignUp);
 module.exports = {
     router,
     routeRoot
-}
+} 
