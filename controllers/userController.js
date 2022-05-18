@@ -12,7 +12,8 @@ const sessions = {};
  * class for the session cookies
  */
 class Session {
-  constructor(username, expiresAt) {
+  constructor(id,username, expiresAt) {
+    this.id = id;
     this.username = username;
     this.expiresAt = expiresAt;
   } // We'll use this method later to determine if the session has expired
@@ -27,11 +28,11 @@ class Session {
  * @param {*} numMinutes the minimum number of minutes for expirded session cookie;
  * @returns 
  */
-function createSession(username, numMinutes) {
+function createSession(id,username, numMinutes) {
   // Generate a random UUID as the sessionId
   const sessionId = uuid.v4(); // Set the expiry time as numMinutes (in milliseconds) after the current time
   const expiresAt = new Date(Date.now() + numMinutes * 60000); // Create a session object containing information about the user and expiry time
-  const thisSession = new Session(username, expiresAt); // Add the session information to the sessions map, using sessionId as the key
+  const thisSession = new Session(id,username, expiresAt); // Add the session information to the sessions map, using sessionId as the key
   sessions[sessionId] = thisSession;
   return sessionId;
 }
@@ -149,8 +150,9 @@ async function Login(request, response) {
 
       //got this from 6.2 from the teacher
         // Let's assume successful login for now with placeholder username
-        const username = oneUsers[0].username; // Create a session object that will expire in 2 minutes
-        const sessionId = createSession(username, 2); // Save cookie that will expire.
+        const username = oneUsers[0].username;
+        const userId = oneUsers[0].id // Create a session object that will expire in 2 minutes
+        const sessionId = createSession(userId,username, 2); // Save cookie that will expire.
         response.cookie("sessionId", sessionId, {
           expires: sessions[sessionId].expiresAt,
         });

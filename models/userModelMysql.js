@@ -129,7 +129,7 @@ async function getUser(username, password) {
     throw new InvalidInputError();
   }
   const sqlQuery =
-    'select username from users where username = "' +
+    'select username,id from users where username = "' +
     username +
     '" and password = "' +
     password +
