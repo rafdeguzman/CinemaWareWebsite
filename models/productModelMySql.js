@@ -37,6 +37,12 @@ async function initialize(dbname, reset) {
             dropQuery = "DROP TABLE IF EXISTS users";
             await connection.execute(dropQuery);
             logger.info("Table users dropped");
+            dropQuery = "DROP TABLE IF EXISTS orders";
+            await connection.execute(dropQuery);
+            logger.info("Table orders dropped");
+            dropQuery = "DROP TABLE IF EXISTS productOrder";
+            await connection.execute(dropQuery);
+            logger.info("Table productOrder dropped");
         }
         // Create table if it doesn't exist
         let sqlQuery = 'CREATE TABLE IF NOT EXISTS products(id int AUTO_INCREMENT, name VARCHAR(50), type VARCHAR(50), price FLOAT, image VARCHAR(255), PRIMARY KEY(id))';
@@ -49,6 +55,16 @@ async function initialize(dbname, reset) {
         await connection.execute(sqlQuery);
         logger.info("Table users created/exists");
         
+        // create order table query
+        sqlQuery = 'CREATE TABLE IF NOT EXISTS orders(id int AUTO_INCREMENT, orderDate date, PRIMARY KEY(id))'
+        await connection.execute(sqlQuery);
+        logger.info("Table orders created/exists");
+        
+        // create productOrder table
+        sqlQuery = 'CREATE TABLE IF NOT EXISTS productOrder(productId int, orderId int, quantity int, PRIMARY KEY(productId, orderId), FOREIGN KEY(productId) REFERENCES products(id), FOREIGN KEY(orderId) REFERENCES orders(id))'
+        await connection.execute(sqlQuery);
+        logger.info("Table productOrder created/exists");
+
         if(!isUserFound('admin')){
             sqlQuery =
             "INSERT IGNORE INTO users (username, password, firstName, lastName) VALUES ('admin','admin','admin','admin')"
@@ -57,7 +73,7 @@ async function initialize(dbname, reset) {
         } else{
             logger.info('Admin already exists');
         }
-
+        
         if(reset){
             createProductData();
             logger.info('Product data created')
