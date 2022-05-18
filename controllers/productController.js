@@ -126,6 +126,9 @@ function containsObject(obj, list) {
 }
 
 async function showCart(req, res){
+    if(!req.cookies['sessionId']){
+        res.redirect("/products");
+    }
 
     if(req.body.addProduct){
         list.push({name: req.body.name, type: req.body.type, price: req.body.price});
