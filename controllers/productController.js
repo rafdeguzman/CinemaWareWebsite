@@ -119,7 +119,11 @@ async function deleteItemFromCart(req, res){
 async function submitCart(req, res){
 
     // TODO: Submit order and input to order history of user.
-    
+    let cartList = req.cookies.shoppingCart;
+    sql.createOrder(cartList);
+    list = [];
+    res.cookie("shoppingCart", null, {expires: new Date(Date.now())});
+
     res.render('submitCart.hbs', null)
 }
 

@@ -5,10 +5,10 @@ const { connect } = require('../app');
 var connection;
 
 /**  Error for 400-level issues */
-class InvalidInputError extends Error {} 
+class InvalidInputError extends Error { }
 
 /** Error for 500-level issues */
-class DBConnectionError extends Error {} 
+class DBConnectionError extends Error { }
 
 /**
  * Initializes the connection to the indicated database dbname.  
@@ -55,7 +55,7 @@ async function initialize(dbname, reset) {
  * @returns connection object
  */
 
- function getConnection() {
+function getConnection() {
     return connection;
 }
 
@@ -77,12 +77,12 @@ async function addProduct(name, category, price) {
         + name + '\",\"' + category + '\", \"' + price + '\")';
     try {
         await connection.execute(sqlQuery);
-        logger.info("Product added");        
+        logger.info("Product added");
         return { "name": name, "category": category, "price": price };  //works and returns object
     } catch (error) {
         logger.error(error);
         throw new DBConnectionError();
-    }        
+    }
 }
 /** 
  * Changes the product's information using the given id.
@@ -99,19 +99,19 @@ async function updateProduct(id, name, category, price) {
     if (!validate.isValid(name, category, price)) {
         throw new InvalidInputError();
     }
-    if(!getCount(id) > 0){
+    if (!getCount(id) > 0) {
         throw new InvalidInputError();
     }
     const sqlQuery = 'UPDATE products SET name = \"'
         + name + '\", category = \"' + category + '\", price = \"' + price + '\" WHERE id = \"' + id + '\"';
     try {
         await connection.execute(sqlQuery);
-        logger.info("Product with id " + id + " updated");        
+        logger.info("Product with id " + id + " updated");
         return { "name": name, "category": category, "price": price };  //works and returns object
     } catch (error) {
         logger.error(error);
         throw new DBConnectionError();
-    }        
+    }
 }
 
 /**
@@ -122,11 +122,11 @@ async function deleteProduct(id) {
     const sqlQuery = 'DELETE FROM products WHERE id = \"' + id + '\"';
     try {
         await connection.execute(sqlQuery);
-        logger.info("Product with id " + id + " deleted");        
+        logger.info("Product with id " + id + " deleted");
     } catch (error) {
         logger.error(error);
         throw new DBConnectionError();
-    }        
+    }
 }
 
 /**
@@ -137,27 +137,27 @@ async function findProduct(id) {
     const sqlQuery = 'SELECT name FROM products WHERE id = \"' + id + '\"';
     try {
         await connection.execute(sqlQuery)
-        .then((x) => {
-            logger.info("Product with id " + id + " selected");        
-        let object = x[0][0];
-        return { "name": object.name, "category": object.category, "price": object.price };  //works and returns object
-        })
-        .catch((error) => {
-            throw new InvalidInputError();
-        })
+            .then((x) => {
+                logger.info("Product with id " + id + " selected");
+                let object = x[0][0];
+                return { "name": object.name, "category": object.category, "price": object.price };  //works and returns object
+            })
+            .catch((error) => {
+                throw new InvalidInputError();
+            })
     } catch (error) {
         logger.error(error);
         throw new DBConnectionError();
-    }        
+    }
 }
 
-async function getCount(){
+async function getCount() {
     const sqlQuery = "SELECT COUNT(*) FROM products";
-    try{
+    try {
         var count = await connection.execute(sqlQuery);
         logger.info("Getting count of all items");
         return count;
-    } catch(error){
+    } catch (error) {
         logger.error(error);
         throw new DBConnectionError();
     }
@@ -167,19 +167,46 @@ async function getCount(){
  * @param {*} id 
  * @returns Integer of number of times id was found in the database.
  */
-async function getCountOfId(id){
+async function getCountOfId(id) {
     const sqlQuery = "SELECT COUNT(*) FROM products WHERE id = " + id;
-    try{
+    try {
         var count = await connection.execute(sqlQuery);
         logger.info("Getting count of all items");
         return count;
-    } catch(error){
+    } catch (error) {
+        logger.error(error);
+        throw new DBConnectionError();
+    }
+}
+
+async function createOrder(list) {
+    try {
+        await connection.execute("INSERT INTO order (OrderDate) VALUES(GETDATE());");
+        logger.info("Order was created.");
+        let orderId = connection.execute("SELECT MAX(OrderId) FROM order;");
+        let productId;
+
+        for (let i = 0; i < list.length; i++) {
+            productId = await connection.execute("SELECT ProductId FROM products WHERE Name = '" + list[i].name + "';");
+            existingProduct = await connection.execute("SELECT * FROM productOrder WHERE ProductId = " + productId + " AND OrderId = " + orderId + ";");
+            if (!existingProduct) {
+                await connection.execute("UPDATE productOrder SET Quantity = Quantity + 1 WHERE ProductId = " + productId + " AND OrderId = " + orderId + ";");
+            }
+            else {
+                await connection.execute("INSERT INTO productOrder (ProductId, OrderId, Quantity) VALUES(" + productId + ", " + orderId + ", 1);");
+            }
+        }
+        logger.info("Items added to the ProductOrder table.");
+
+
+    } catch (error) {
         logger.error(error);
         throw new DBConnectionError();
     }
 }
 
 module.exports = {
+    createOrder,
     initialize,
     addProduct,
     updateProduct,
