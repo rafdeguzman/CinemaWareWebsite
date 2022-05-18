@@ -39,7 +39,7 @@ async function createProduct(req, res){
         if(added){
             populateProducts();
             res.render('products.hbs', renderItems);
-        }            
+        }
     } catch(error){
         logger.error(error);
         throw new sql.DBConnectionError();
@@ -53,12 +53,28 @@ async function updateProduct(req, res){
     try{
         const updated = await sql.updateProduct(req.body.id, req.body.name, req.body.type, req.body.price, req.body.image);
         if(updated){
-            res.redirect('/products')
+            res.redirect('/products');
         }            
     } catch(error){
         logger.error(error);
         throw new sql.DBConnectionError();
     }   
+}
+
+async function deleteProduct(req, res){
+    const renderItems = {
+        products: products
+    }
+    try{
+        const deleted = await sql.deleteProduct(req.body.id);
+        if(deleted){
+            res.redirect('/products');
+        }
+    }catch(error){
+        logger.error(error);
+        throw new sql.DBConnectionError();
+    }
+
 }
 
 async function showProducts(req, res){
@@ -137,6 +153,7 @@ async function deleteItemFromCart(req, res){
 router.get('/products', showProducts);
 router.post('/products', createProduct);
 router.post('/products/update', updateProduct);
+router.post('/products/delete', deleteProduct);
 
 router.post('/cart', showCart);
 router.post('/cart/remove', deleteItemFromCart);

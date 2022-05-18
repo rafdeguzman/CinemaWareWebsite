@@ -31,18 +31,18 @@ async function initialize(dbname, reset) {
         });
 
         if (reset) {
-            let dropQuery = "DROP TABLE IF EXISTS products";
+            let dropQuery = "DROP TABLE IF EXISTS productOrder";
+            await connection.execute(dropQuery);
+            logger.info("Table productOrder dropped");
+            dropQuery = "DROP TABLE IF EXISTS orders";
+            await connection.execute(dropQuery);
+            logger.info("Table orders dropped");
+            dropQuery = "DROP TABLE IF EXISTS products";
             await connection.execute(dropQuery);
             logger.info("Table products dropped");
             dropQuery = "DROP TABLE IF EXISTS users";
             await connection.execute(dropQuery);
             logger.info("Table users dropped");
-            dropQuery = "DROP TABLE IF EXISTS orders";
-            await connection.execute(dropQuery);
-            logger.info("Table orders dropped");
-            dropQuery = "DROP TABLE IF EXISTS productOrder";
-            await connection.execute(dropQuery);
-            logger.info("Table productOrder dropped");
         }
         // Create table if it doesn't exist
         let sqlQuery = 'CREATE TABLE IF NOT EXISTS products(id int AUTO_INCREMENT, name VARCHAR(50), type VARCHAR(50), price FLOAT, image VARCHAR(255), PRIMARY KEY(id))';
@@ -162,6 +162,7 @@ async function deleteProduct(id) {
     try {
         await connection.execute(sqlQuery);
         logger.info("Product with id " + id + " deleted");        
+        return true;
     } catch (error) {
         logger.error(error);
         throw new DBConnectionError();
