@@ -12,7 +12,8 @@ const sessions = {};
  * class for the session cookies
  */
 class Session {
-  constructor(username, expiresAt) {
+  constructor(id,username, expiresAt) {
+    this.id = id;
     this.username = username;
     this.expiresAt = expiresAt;
   } // We'll use this method later to determine if the session has expired
@@ -27,49 +28,73 @@ class Session {
  * @param {*} numMinutes the minimum number of minutes for expirded session cookie;
  * @returns 
  */
-function createSession(username, numMinutes) {
+function createSession(id,username, numMinutes) {
   // Generate a random UUID as the sessionId
   const sessionId = uuid.v4(); // Set the expiry time as numMinutes (in milliseconds) after the current time
   const expiresAt = new Date(Date.now() + numMinutes * 60000); // Create a session object containing information about the user and expiry time
-  const thisSession = new Session(username, expiresAt); // Add the session information to the sessions map, using sessionId as the key
+  const thisSession = new Session(id,username, expiresAt); // Add the session information to the sessions map, using sessionId as the key
   sessions[sessionId] = thisSession;
   return sessionId;
 }
 
 /**
  *  Handles post /user endpoint.
- *  Calls the model to add a user to the database using the given usernamem, password, firstName and lastName.
+ *  Calls the model to add a user to the database using the given username and password.
  *
- * @param {*} request: Express request expecting JSON body with values request.body.username, request.body.password, request.body.firstName and request.body.lastName
+ * @param {*} request: Express request expecting JSON body with values request.body.name and request.body.type
  * @param {*} response: Sends a successful response, 400-level response if inputs are invalid or
  *                        a 500-level response if there is a system error
  */
- async function createUser(request, response) {
+async function createUser(request, response) {
   try {
-    const added = await model.addUser(request.body.username, request.body.password, request.body.firstname, request.body.lastname);
+    const added = await model.addUser(
+      request.body.username,
+      request.body.password
+    );
     if (added) {
-        response.render("home.hbs");
-        // 200 success
+      response.render("showUser.hbs", {
+        message: "Successfully added user",
+        username: added.username,
+        ListAll: false,
+        messageAlready: added.message,
+        showMessageAlready: added.ShowMessage,
+      });
+      // 200 success
     } else {
-        response.render("error.hbs", {alertMessage: "Failed!! User Already Exist"});
+      response.render("home.hbs", {
+        alertMessage: "Failed!! User Already Exist",
+      });
     }
   } catch (error) {
     if (error instanceof model.DBConnectionError) {
-        //response.status("500");
-      response.render("error.hbs", {alertMessage: "Failed to add User for DataBase Connection Error",image:"https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pok%C3%A9mon_logo.svg",formFields:[ "name","type"]});
+      //response.status("500");
+      response.render("home.hbs", {
+        alertMessage: "Failed to add User for DataBase Connection Error",
+        image:
+          "https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pok%C3%A9mon_logo.svg",
+        formFields: ["name", "type"],
+      });
     } else if (error instanceof model.InvalidInputError) {
       //response.status("400");
-      response.render("error.hbs", {alertMessage: "Failed to add User for invaild Input",image:"https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pok%C3%A9mon_logo.svg",formFields:[ "name","type"]});
+      response.render("home.hbs", {
+        alertMessage: "Failed to add User for invaild Input",
+        image:
+          "https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pok%C3%A9mon_logo.svg",
+        formFields: ["name", "type"],
+      });
     } else {
       //response.status("500");
-      response.render("error.hbs", {alertMessage: "Failed to add User for  DataBase Connection Error",image:"https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pok%C3%A9mon_logo.svg"});
+      response.render("home.hbs", {
+        alertMessage: "Failed to add User for  DataBase Connection Error",
+        image:
+          "https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pok%C3%A9mon_logo.svg",
+      });
     }
   }
 }
-router.post("/signup", createUser);
 
 /**
- *  Handles get /users endpoint.
+ *  Handles get /userd endpoint.
  *  Calls the model to get all a user from the database.
  * @param {*} request
  * @param {*} response Sends a successful response, 400-level response if inputs are invalid or
@@ -125,8 +150,9 @@ async function Login(request, response) {
 
       //got this from 6.2 from the teacher
         // Let's assume successful login for now with placeholder username
-        const username = oneUsers[0].username; // Create a session object that will expire in 2 minutes
-        const sessionId = createSession(username, 2); // Save cookie that will expire.
+        const username = oneUsers[0].username;
+        const userId = oneUsers[0].id // Create a session object that will expire in 2 minutes
+        const sessionId = createSession(userId,username, 2); // Save cookie that will expire.
         response.cookie("sessionId", sessionId, {
           expires: sessions[sessionId].expiresAt,
         });

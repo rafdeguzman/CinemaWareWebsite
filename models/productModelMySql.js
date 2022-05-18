@@ -1,6 +1,7 @@
 const mysql = require('mysql2/promise');
 const logger = require('../logger');
 const { connect } = require('../app');
+const validator = require('validator');
 var connection;
 
 /**  Error for 400-level issues */
@@ -34,6 +35,9 @@ async function initialize(dbname, reset) {
             let dropQuery = "DROP TABLE IF EXISTS productOrder";
             await connection.execute(dropQuery);
             logger.info("Table productOrder dropped");
+            dropQuery = "DROP TABLE IF EXISTS orderHistory";
+            await connection.execute(dropQuery);
+            logger.info("Table orderHistory dropped");
             dropQuery = "DROP TABLE IF EXISTS orders";
             await connection.execute(dropQuery);
             logger.info("Table orders dropped");
@@ -271,11 +275,15 @@ let products = [
 ];
 
 
+function validateUsername(username) {
+  return (typeof username === 'string' && username && validator.isAlphanumeric(username,'en-US'));
+}
+
 /**
  * Adds the given user to the db if valid and returns that
  *  user as an object
  *
- * @param {string} username username of user.  Must be alphabetical only with no spaces.(see validateUtils.isValid)
+ * @param {string} username username of user.  Must be alphanumeric.
  * @param {string} password password of user.  Can be any combination of string
  * @param {string} firstName firstName of user.  Must be contained of letters only.
  * @param {string} lastName  lastName of user.  Must be contained of letters only.
@@ -284,12 +292,12 @@ let products = [
  */
  async function addUser(username, password, firstName, lastName) {
   username = username.trim();
-// if (!validate.isValidUserName(username)) {
-//   throw new InvalidInputError();
-// }
-// if (!validate.isValidNames(firstName, lastName)) {
-//   throw new InvalidInputError();
-// }
+  if (!validateUsername(username)) {
+    throw new InvalidInputError();
+  }
+  if(isUserFound(username)){
+      return false;
+  }
 if( await isUserFound(username)){
     return false;
 }
@@ -340,11 +348,11 @@ try {
  */
  async function getUser(username, password) {
     username = username.trim();
-  // if (!validate.isValid(username)) {
-  //   throw new InvalidInputError();
-  // }
+  if (!validateUsername(username)) {
+    throw new InvalidInputError();
+  }
   const sqlQuery =
-    'select username from users where username = "' +
+    'select username, id from users where username = "' +
     username +
     '" and password = "' +
     password +
@@ -369,9 +377,9 @@ try {
  */
 async function UpdateUserPassword(originalUsername, updatePassword) {
     originalUsername = originalUsername.trim();
-  // if (!validate.isValid(originalUsername)) {
-  //   throw new InvalidInputError();
-  // }
+  if (!validateUsername(originalUsername)) {
+    throw new InvalidInputError();
+  }
   let sqlQuery =
     'select password from users where username = "' + originalUsername + '"';
   try {
@@ -407,9 +415,9 @@ async function UpdateUserPassword(originalUsername, updatePassword) {
  */
  async function DeleteUser(originalUsername) {
     originalUsername = originalUsername.trim();
-  // if (!validate.isValid(originalUsername)) {
-  //   throw new InvalidInputError();
-  // }
+  if (!validateUsername(originalUsername)) {
+    throw new InvalidInputError();
+  }
 
   let sqlQuery =
     'select password from users where username = "' + originalUsername + '"';
