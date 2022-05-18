@@ -31,6 +31,11 @@ function isValidUserName(username) {
    }
 }
 
+/**
+ * Validates a given password if it is strong enough.
+ * @param {*} password The password of the user. Must be minimum length of 8 characters, 1 uppercase, 1 lowercase and 1 symbol
+ * @returns true if the password is strong (valid), and false if not
+ */
 function isValidPassword(password){
     const num = validator.isStrongPassword(password);
     if (num == false){

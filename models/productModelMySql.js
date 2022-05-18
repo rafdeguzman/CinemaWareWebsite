@@ -423,7 +423,27 @@ async function isUserFound(usernameInput) {
       return false;
     }
 }
-  
+
+/**
+ * Gets a user by id and returns the username of that user.
+ * @param {*} id The id of the user needed to be found.
+ * @returns The username of the user with a given id.
+ */
+async function getUserById(id) {
+  const sqlQuery =
+    'select username from users where id = "' +
+    id +
+    '"';
+  try {
+    const [row, field] = await connection.execute(sqlQuery);
+    logger.info("Got the user");
+    return row;
+  } catch (error) {
+    logger.error(error);
+    throw new DBConnectionError();
+  }
+}
+
 module.exports = {
     initialize,
     addProduct,
@@ -438,6 +458,7 @@ module.exports = {
     getUser,
     UpdateUserPassword,
     DeleteUser,
+    getUserById,
     InvalidInputError,
     DBConnectionError
 }
