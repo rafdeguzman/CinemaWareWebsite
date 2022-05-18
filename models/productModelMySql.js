@@ -1,6 +1,5 @@
 const mysql = require('mysql2/promise');
 const logger = require('../logger');
-const { connect } = require('../app');
 const valid = require('./validateUtils');
 var connection;
 
