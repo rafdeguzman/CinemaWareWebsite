@@ -179,7 +179,7 @@ async function getCountOfId(id) {
     }
 }
 
-async function createOrder(list) {
+async function createOrder(list, userId) {
     try {
         await connection.execute("INSERT INTO order (OrderDate) VALUES(GETDATE());");
         logger.info("Order was created.");
@@ -197,7 +197,8 @@ async function createOrder(list) {
             }
         }
         logger.info("Items added to the ProductOrder table.");
-
+        
+        await connection.execute('INSERT INTO orderHistory (UserId, OrderId) VALUES(' + userId + ', ' + orderId + ');')
 
     } catch (error) {
         logger.error(error);
