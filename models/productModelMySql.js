@@ -1,7 +1,7 @@
 const mysql = require('mysql2/promise');
 const logger = require('../logger');
 const { connect } = require('../app');
-const validator = require('validator');
+const valid = require('./validateUtils');
 var connection;
 
 /**  Error for 400-level issues */
@@ -121,7 +121,7 @@ async function initialize(dbname, reset) {
  * @throws InvalidInputError, DBConnectionError
  */
 async function addProduct(name, type, price, image) {
-    if (!validateProduct(name, type, price)) {
+    if (!valid.validateProduct(type, price)) {
         throw new InvalidInputError();
     }
     const sqlQuery = 'INSERT INTO products (name, type, price, image) VALUES (\"'
@@ -147,7 +147,7 @@ async function addProduct(name, type, price, image) {
  * @throws InvalidInputError, DBConnectionError
  */
 async function updateProduct(id, name, type, price, image) {
-    if (!validateProduct(name, type, price)) {
+    if (!valid.validateProduct(type, price)) {
         throw new InvalidInputError();
     }
     const sqlQuery = 'UPDATE products SET name = \"'
@@ -217,14 +217,7 @@ async function getProducts(){
     }
 }
 
-const types = ['dslr', 'video', 'webcam', 'camera'];
 
-function validateProduct(name, type, price){
-    if(types.includes(type) && price > 0)
-        return true;
-    else
-        return false;
-}
 
 async function createOrder(list, userId) {
   try {
@@ -275,9 +268,6 @@ let products = [
 ];
 
 
-function validateUsername(username) {
-  return (typeof username === 'string' && username && validator.isAlphanumeric(username,'en-US'));
-}
 
 /**
  * Adds the given user to the db if valid and returns that
@@ -292,13 +282,10 @@ function validateUsername(username) {
  */
  async function addUser(username, password, firstName, lastName) {
   username = username.trim();
-  if (!validateUsername(username)) {
+  if (!valid.validateUsername(username)) {
     throw new InvalidInputError();
   }
-  if(isUserFound(username)){
-      return false;
-  }
-if( await isUserFound(username)){
+  if( await isUserFound(username)){
     return false;
 }
 let sqlQuery = "INSERT INTO users (username, password, firstName, lastName) VALUES ('"+username+"', '"+password+"', '"+firstName+"', '"+lastName+"')";
@@ -348,7 +335,7 @@ try {
  */
  async function getUser(username, password) {
     username = username.trim();
-  if (!validateUsername(username)) {
+  if (!valid.validateUsername(username)) {
     throw new InvalidInputError();
   }
   const sqlQuery =
@@ -377,7 +364,7 @@ try {
  */
 async function UpdateUserPassword(originalUsername, updatePassword) {
     originalUsername = originalUsername.trim();
-  if (!validateUsername(originalUsername)) {
+  if (!valid.validateUsername(originalUsername)) {
     throw new InvalidInputError();
   }
   let sqlQuery =
@@ -415,7 +402,7 @@ async function UpdateUserPassword(originalUsername, updatePassword) {
  */
  async function DeleteUser(originalUsername) {
     originalUsername = originalUsername.trim();
-  if (!validateUsername(originalUsername)) {
+  if (!valid.validateUsername(originalUsername)) {
     throw new InvalidInputError();
   }
 
