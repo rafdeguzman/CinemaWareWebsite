@@ -1,3 +1,14 @@
+{{#if alertSuccess}}
+<div class="alert alert-success" role="alert">
+  {{alertMessage}}
+</div>
+{{/if}}
+
+{{#if alertAlreadyLogged}}
+<div class="alert alert-primary" role="alert">
+  {{alertMessage}}
+</div>
+{{/if}}
 <div class="hero-image">
   <div class="hero-text">
     <h1>CinemaWare</h1>

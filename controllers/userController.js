@@ -2,7 +2,7 @@ const express = require("express");
 const model = require("../models/productModelMySql");
 const router = express.Router();
 const routeRoot = "/";
-const uuid = require('uuid');
+const uuid = require("uuid");
 
 const sessions = {};
 
@@ -10,14 +10,10 @@ const sessions = {};
  * class for the session cookies
  */
 class Session {
-  constructor(id,username, expiresAt) {
+  constructor(id, username) {
     this.id = id;
     this.username = username;
-    this.expiresAt = expiresAt;
-  } // We'll use this method later to determine if the session has expired
-  isExpired() {
-    this.expiresAt < new Date();
-  }
+  } 
 }
 
 /**
@@ -26,11 +22,10 @@ class Session {
  * @param {*} numMinutes the minimum number of minutes for expirded session cookie;
  * @returns The session ID.
  */
-function createSession(id,username, numMinutes) {
+function createSession(id, username) {
   // Generate a random UUID as the sessionId
   const sessionId = uuid.v4(); // Set the expiry time as numMinutes (in milliseconds) after the current time
-  const expiresAt = new Date(Date.now() + numMinutes * 60000); // Create a session object containing information about the user and expiry time
-  const thisSession = new Session(id,username, expiresAt); // Add the session information to the sessions map, using sessionId as the key
+  const thisSession = new Session(id, username); // Add the session information to the sessions map, using sessionId as the key
   sessions[sessionId] = thisSession;
   return sessionId;
 }
@@ -43,25 +38,48 @@ function createSession(id,username, numMinutes) {
  * @param {*} response: Sends a successful response, 400-level response if inputs are invalid or
  *                        a 500-level response if there is a system error
  */
- async function createUser(request, response) {
+async function createUser(request, response) {
   try {
-    const added = await model.addUser(request.body.username, request.body.password, request.body.firstname, request.body.lastname);
+    const added = await model.addUser(
+      request.body.username,
+      request.body.password,
+      request.body.firstname,
+      request.body.lastname
+    );
     if (added) {
-        response.render("home.hbs");
-        // 200 success
+      response.render("home.hbs", {
+        alertSuccess:true ,alertMessage:"Successfully created " +request.body.username +""
+      });
+      // 200 success
     } else {
-        response.render("error.hbs", {alertMessage: "Failed!! User Already Exist"});
+      response.render("error.hbs", {
+        alertMessage: "Failed!! User Already Exist",
+      });
     }
   } catch (error) {
     if (error instanceof model.DBConnectionError) {
-        //response.status("500");
-      response.render("error.hbs", {alertMessage: "Failed to add User for DataBase Connection Error",image:"https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pok%C3%A9mon_logo.svg",formFields:[ "name","type"]});
+      //response.status("500");
+      response.render("error.hbs", {
+        alertMessage: "Failed to add User for DataBase Connection Error",
+        image:
+          "https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pok%C3%A9mon_logo.svg",
+        formFields: ["name", "type"],
+      });
     } else if (error instanceof model.InvalidInputError) {
       //response.status("400");
-      response.render("error.hbs", {alertMessage: error.message,image:"https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pok%C3%A9mon_logo.svg",formFields:[ "name","type"]});
+      response.render("error.hbs", {
+        alertMessage: error.message,
+        image:
+          "https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pok%C3%A9mon_logo.svg",
+        formFields: ["name", "type"],
+      });
     } else {
       //response.status("500");
-      response.render("error.hbs", {alertMessage: "Failed to add User for  DataBase Connection Error",image:"https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pok%C3%A9mon_logo.svg"});
+      response.render("error.hbs", {
+        alertMessage: "Failed to add User for  DataBase Connection Error",
+        image:
+          "https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pok%C3%A9mon_logo.svg",
+      });
     }
   }
 }
@@ -74,7 +92,7 @@ router.post("/signup", createUser);
  * @param {*} response Sends a successful response, 400-level response if inputs are invalid or
  *                        a 500-level response if there is a system error
  */
- async function listAllUser(request, response) {
+async function listAllUser(request, response) {
   try {
     const allUsers = await model.getAllUsers();
     if (allUsers.length > 0) {
@@ -116,28 +134,36 @@ router.get("/users", listAllUser);
  */
 async function Login(request, response) {
   try {
-    const oneUsers = await model.getUser(
-      request.body.username,
-      request.body.password
-    );
-    if (oneUsers.length > 0) {
 
-      //got this from 6.2 from the teacher
+    const authenticatedSession = authenticateUser(request);
+    if (!authenticatedSession) {
+      const oneUsers = await model.getUser(
+        request.body.username,
+        request.body.password
+      );
+      if (oneUsers.length > 0) {
+        //got this from 6.2 from the teacher
         // Let's assume successful login for now with placeholder username
         const username = oneUsers[0].username;
-        const userId = oneUsers[0].id // Create a session object that will expire in 2 minutes
-        const sessionId = createSession(userId,username, 2); // Save cookie that will expire.
-        response.cookie("sessionId", sessionId, {
-          expires: sessions[sessionId].expiresAt,
-        });
+        const userId = oneUsers[0].id; // Create a session object that will expire in 2 minutes
+        const sessionId = createSession(userId, username); // Save cookie that will expire.
+        response.cookie("sessionId", sessionId);
         response.cookie("id", userId);
-        response.redirect("/");
-      // 200 success
-    } else {
-      response.render("error.hbs", {
-        alertMessage: "Failed user may not exist",
-      });
+        response.render("home.hbs", {
+          alertSuccess:true ,alertMessage: "Successfully logged in"
+        });
+        // 200 success
+      } else {
+        response.render("error.hbs", {
+          alertMessage: "Failed user may not exist",
+        });
+    };
     }
+    else{  
+      response.render("home.hbs", {
+      alertAlreadyLogged:true ,alertMessage: "Already logged in"
+    })}
+
   } catch (error) {
     if (error instanceof model.DBConnectionError) {
       //response.status("500");
@@ -180,23 +206,20 @@ async function UpdatePassword(request, response) {
       });
       // 200 success
     }
-    // else {
-    //     response.render("home.hbs", {alertMessage: "Failed to update user , user may not exist",});
-    // }
   } catch (error) {
     if (error instanceof model.DBConnectionError) {
       //response.status("500");
-      response.render("home.hbs", {
+      response.render("error.hbs", {
         alertMessage: "Failed to update user for DataBase Connection Error",
       });
     } else if (error instanceof model.InvalidInputError) {
       //response.status("400");
-      response.render("home.hbs", {
+      response.render("error.hbs", {
         alertMessage: "Failed to update user , user may not exist",
       });
     } else {
       //response.status("500");
-      response.render("home.hbs", {
+      response.render("error.hbs", {
         alertMessage: "Failed to update user for DataBase Connection Error",
       });
     }
@@ -233,18 +256,67 @@ async function Delete(request, response) {
       });
     } else if (error instanceof model.InvalidInputError) {
       //response.status("400");
-      response.render("home.hbs", {
+      response.render("error.hbs", {
         alertMessage: "Failed to delete user not exist",
       });
     } else {
       //response.status("500");
-      response.render("home.hbs", {
+      response.render("error.hbs", {
         alertMessage: "Failed to delete user for DataBase Connection Error",
       });
     }
   }
 }
 router.post("/removeuser", Delete);
+
+
+/**
+ * this check if the use authenicate the User 
+ * @param {*} request request for the cookie session
+ * @returns object contain sessionId and userSession
+ */
+function authenticateUser(request) {
+  // If this request doesn't have any cookies, that means it isn't authenticated. Return null.
+  if (!request.cookies) {
+    return null;
+  } // We can obtain the session token from the requests cookies, which come with every request
+  const sessionId = request.cookies["sessionId"];
+  if (!sessionId) {
+    // If the cookie is not set, return null
+    return null;
+  } // We then get the session of the user from our session map
+  userSession = sessions[sessionId];
+  if (!userSession) {
+    return null;
+  } // If the session has expired, delete the session from our map and return null
+  return { sessionId, userSession }; // Successfully validated.
+}
+
+/**
+ * logout the user
+ * @param {*} request request authenticate of the User
+ * @param {*} response response return to the home page 
+ * @returns 
+ */
+async function Logout(request, response){
+  const authenticatedSession = authenticateUser(request);
+  if (!authenticatedSession) {
+        response.redirect('/');
+      return;
+  }
+  delete sessions[authenticatedSession.sessionId]
+  console.log("Logged out user " + authenticatedSession.userSession.username);
+  
+  response.cookie("sessionId", "", { expires: new Date() }); // "erase" cookie by forcing it to expire.
+  response.cookie("id", "", { expires: new Date() }); // "erase" cookie by forcing it to expire.
+  response.render("home.hbs", {
+    alertSuccess:true ,alertMessage: "Successfully log out"
+  });
+};
+router.get("/logout", Logout);
+
+
+
 
 module.exports = {
   createUser,
