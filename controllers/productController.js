@@ -306,6 +306,7 @@ async function showCart(req, res){
     }
 
    if(!req.cookies['sessionId'] || req.cookies == null){
+        res.status("400");
         res.render("error.hbs", {alertMessage: alertMessage})
     }
     else{
