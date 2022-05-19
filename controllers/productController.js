@@ -145,6 +145,14 @@ function containsObject(obj, list) {
     return false;
 }
 
+async function showCartPage(req, res){
+    const renderItems = {
+        products: list,
+    }
+    res.render("cart.hbs", renderItems);
+}
+
+
 /**
  * Handles the /cart endpoint. Shows the user's shopping cart.
  * @param {*} req The request object.
@@ -209,6 +217,7 @@ router.post('/products', createProduct);
 router.post('/products/update', updateProduct);
 router.post('/products/delete', deleteProduct);
 
+router.get('/cart', showCartPage);
 router.post('/cart', showCart);
 router.delete('/cart/remove', deleteItemFromCart);
 router.get('/cart/buy', submitCart)
