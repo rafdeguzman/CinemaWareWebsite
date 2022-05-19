@@ -5,6 +5,7 @@ const logger = require('./logger');
 const methodOverride = require('method-override');
 const bodyParser = require('body-parser');
 const pinohttp = require('pino-http');
+const cookieParser = require('cookie-parser');
 
 // Tell the app to use handlebars templating engine.  
 //   Configure the engine to use a simple .hbs extension to simplify file naming
@@ -28,6 +29,7 @@ app.use(methodOverride(function (req, res) {
   }
 }));
 app.use(express.static('public'));
+app.use(cookieParser());
 
 // Http request logs will go to same location as main logger
 const httpLogger = pinohttp({

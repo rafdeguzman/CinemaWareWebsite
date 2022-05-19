@@ -1,6 +1,5 @@
 const mysql = require('mysql2/promise');
 const logger = require('../logger');
-const { connect } = require('../app');
 const valid = require('./validateUtils');
 var connection;
 
@@ -221,15 +220,18 @@ async function getProducts(){
 
 async function createOrder(list, userId) {
   try {
-      await connection.execute("INSERT INTO orders (orderDate) VALUES(GETDATE());");
+      await connection.execute("INSERT INTO orders (orderDate) VALUES(curdate());");
       logger.info("Order was created.");
-      let orderId = connection.execute("SELECT MAX(id) FROM orders;");
+      let getOrderId = await connection.execute("SELECT MAX(id) AS orderId FROM orders;");
+      let orderId = getOrderId[0][0].orderId;
       let productId;
+      let getProductId;
 
       for (let i = 0; i < list.length; i++) {
-          productId = await connection.execute("SELECT id FROM products WHERE name = '" + list[i].name + "';");
+          getProductId = await connection.execute("SELECT id FROM products WHERE name = '" + list[i].name + "';");
+          productId = getProductId[0][0].id;
           existingProduct = await connection.execute("SELECT * FROM productOrder WHERE productId = " + productId + " AND orderId = " + orderId + ";");
-          if (!existingProduct) {
+          if (existingProduct[0].length !== 0) {
               await connection.execute("UPDATE productOrder SET quantity = quantity + 1 WHERE productId = " + productId + " AND orderId = " + orderId + ";");
           }
           else {

@@ -152,7 +152,7 @@ async function deleteItemFromCart(req, res){
 async function submitCart(req, res){
     try{
         // TODO: Submit order and input to order history of user.
-        let cartList = req.cookies['shoppingCart'];
+        let cartList = req.cookies.shoppingCart;
         let userId = req.cookies['sessionId'];
         await sql.createOrder(cartList, userId);
         list = [];
@@ -160,6 +160,7 @@ async function submitCart(req, res){
 
         res.render('submitCart.hbs', null)
     } catch (e) {
+        logger.info(e);
         throw new sql.DBConnectionError();
     }
 }
@@ -170,7 +171,7 @@ router.post('/products/update', updateProduct);
 router.post('/products/delete', deleteProduct);
 
 router.post('/cart', showCart);
-router.post('/cart/remove', deleteItemFromCart);
+router.delete('/cart/remove', deleteItemFromCart);
 router.get('/cart/buy', submitCart)
 
 module.exports = {
