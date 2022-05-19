@@ -47,7 +47,9 @@ async function createUser(request, response) {
       request.body.lastname
     );
     if (added) {
-      response.render("home.hbs");
+      response.render("home.hbs", {
+        alertSuccess:true ,alertMessage:"Successfully created " +request.body.username +""
+      });
       // 200 success
     } else {
       response.render("error.hbs", {
@@ -161,6 +163,7 @@ async function Login(request, response) {
       response.render("home.hbs", {
       alertAlreadyLogged:true ,alertMessage: "Already logged in"
     })}
+
   } catch (error) {
     if (error instanceof model.DBConnectionError) {
       //response.status("500");
@@ -203,23 +206,20 @@ async function UpdatePassword(request, response) {
       });
       // 200 success
     }
-    // else {
-    //     response.render("home.hbs", {alertMessage: "Failed to update user , user may not exist",});
-    // }
   } catch (error) {
     if (error instanceof model.DBConnectionError) {
       //response.status("500");
-      response.render("home.hbs", {
+      response.render("error.hbs", {
         alertMessage: "Failed to update user for DataBase Connection Error",
       });
     } else if (error instanceof model.InvalidInputError) {
       //response.status("400");
-      response.render("home.hbs", {
+      response.render("error.hbs", {
         alertMessage: "Failed to update user , user may not exist",
       });
     } else {
       //response.status("500");
-      response.render("home.hbs", {
+      response.render("error.hbs", {
         alertMessage: "Failed to update user for DataBase Connection Error",
       });
     }
@@ -256,12 +256,12 @@ async function Delete(request, response) {
       });
     } else if (error instanceof model.InvalidInputError) {
       //response.status("400");
-      response.render("home.hbs", {
+      response.render("error.hbs", {
         alertMessage: "Failed to delete user not exist",
       });
     } else {
       //response.status("500");
-      response.render("home.hbs", {
+      response.render("error.hbs", {
         alertMessage: "Failed to delete user for DataBase Connection Error",
       });
     }
@@ -269,6 +269,12 @@ async function Delete(request, response) {
 }
 router.post("/removeuser", Delete);
 
+
+/**
+ * this check if the use authenicate the User 
+ * @param {*} request request for the cookie session
+ * @returns object contain sessionId and userSession
+ */
 function authenticateUser(request) {
   // If this request doesn't have any cookies, that means it isn't authenticated. Return null.
   if (!request.cookies) {
@@ -286,10 +292,16 @@ function authenticateUser(request) {
   return { sessionId, userSession }; // Successfully validated.
 }
 
+/**
+ * logout the user
+ * @param {*} request request authenticate of the User
+ * @param {*} response response return to the home page 
+ * @returns 
+ */
 async function Logout(request, response){
   const authenticatedSession = authenticateUser(request);
   if (!authenticatedSession) {
-        response.redirect('/'); // Unauthorized access
+        response.redirect('/');
       return;
   }
   delete sessions[authenticatedSession.sessionId]
@@ -297,7 +309,9 @@ async function Logout(request, response){
   
   response.cookie("sessionId", "", { expires: new Date() }); // "erase" cookie by forcing it to expire.
   response.cookie("id", "", { expires: new Date() }); // "erase" cookie by forcing it to expire.
-  response.redirect('/');
+  response.render("home.hbs", {
+    alertSuccess:true ,alertMessage: "Successfully log out"
+  });
 };
 router.get("/logout", Logout);
 
