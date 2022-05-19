@@ -119,6 +119,7 @@ async function showCart(req, res){
     const renderItems = {
         products: list,
     }
+    
     res.render("cart.hbs", renderItems);
 }
 async function deleteItemFromCart(req, res){

@@ -137,6 +137,14 @@ async function showCart(req, res){
     }
     res.render("cart.hbs", renderItems);
 }
+
+async function showCartPage(req, res){
+    const renderItems = {
+        products: list,
+    }
+    res.render("cart.hbs", renderItems);
+}
+
 async function deleteItemFromCart(req, res){
     
     let name = req.body.name
@@ -155,6 +163,7 @@ router.post('/products', createProduct);
 router.post('/products/update', updateProduct);
 router.post('/products/delete', deleteProduct);
 
+router.get('/cart', showCartPage);
 router.post('/cart', showCart);
 router.post('/cart/remove', deleteItemFromCart);
 

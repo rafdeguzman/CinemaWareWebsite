@@ -237,6 +237,8 @@ body, html {
   
   body{
     background-color: #282828;
+    overflow-y: scroll;
+    overflow-x: hidden;
 }
 
 #cart{
