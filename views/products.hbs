@@ -1,0 +1,154 @@
+<body>
+    {{#grouped_each 3 products}}
+    <div class="row">
+        {{#each this}}
+        <form action="/cart" method="post" class="col-sm-4 item">
+            <input type="hidden" name="addProduct" value="true">
+            <input type="hidden" name="name" value="{{this.name}}">
+            <input type="hidden" name="type" value="{{this.type}}">
+            <input type="hidden" name="price" value="{{this.price}}">
+            <div class="card" style="width: 18rem;">
+                <p>{{../../productType}} {{this.type}} {{../../productId}} {{this.id}}</p>
+                {{#if this.image}}
+                <img class="card-img-top" src={{this.image}} alt="Card image cap" onerror="this.src= 'images/logo_wide_white.png'">
+                {{/if}}
+                {{#else}}
+                <img class="card-img-top" src="images/logo_wide_white.png" alt="Card image cap">
+                {{/else}}
+                <div class="card-body">
+                    <h5 class="card-title">{{this.name}}</h5>
+                    <p class="card-text">${{this.price}}</p>
+                    <div class="btn-group mr-2" role="group" aria-label="groupedbutton">
+                        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#updateModal" data-bs-id="{{this.id}}" data-bs-name="{{this.name}}" data-bs-type="{{this.type}}" data-bs-price="{{this.price}}" data-bs-image="{{this.image}}">
+                            {{../../update}}
+                        </button>
+                        <button type="submit" class="btn btn-success">{{../../addCart}}</button>
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-bs-id="{{this.id}}">
+                           {{../../deleteItem}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+        {{/each}}
+    </div>
+    {{/grouped_each}}
+
+
+
+    <!-- Delete --> 
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteModalLabel" style="color: #151414" >{{deleteItem}} {{productId}}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="color: #151414">
+        <!-- Form for delete goes here -->
+        <form action="/products/delete" method="post" role="form" enctype="application/x-www-form-urlencoded">
+            <legend class="darktxt">{{enterInfo}}</legend>
+            
+            <label class="darktxt" for="id">Id: </label><br>
+            <input class="darktxt" type="number" id="deleteId" name="id" value="" readonly="true"><br>
+
+            <button type="submit" class="btn btn-primary">{{submit}}</button>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{close}}</button>
+      </div>
+    </div>
+  </div>
+    </div>
+
+
+<!-- Update -->
+<div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="updateModalLabel" style="color: #151414" >{{update}} {{productId}}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="color: #151414">
+        <!-- Form for update goes here -->
+        <form action="/products/update" method="post" role="form" enctype="application/x-www-form-urlencoded">
+            <legend class="darktxt">{{enterInfo}}</legend>
+            
+            <label class="darktxt" for="id">Id: </label><br>
+            <input class="darktxt" type="number" id="modalId" name="id" value="" readonly="true"><br>
+
+            <label class="darktxt" for="name">{{name}}:</label><br>
+            <input class="darktxt" type="text" id="modalName" name="name" value=""><br>
+
+            <label class="darktxt" for="type">type:</label><br>
+            <input class="darktxt" type="text" id="modalType" name="type"><br>
+
+            <label class="darktxt" for="price">{{price}}:</label><br>
+            <input class="darktxt" type="text" id="modalPrice" name="price"><br>
+
+
+            <label class="darktxt" for="image">Image:</label><br>
+            <input class="darktxt" type="text" id="modalImage" name="image"><br>
+
+            <button type="submit" class="btn btn-primary">{{submit}}</button>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{close}}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  var deleteModal = document.getElementById("deleteModal")
+  deleteModal.addEventListener("show.bs.modal", function (event){
+    var button = event.relatedTarget
+    var id = button.getAttribute('data-bs-id');  
+    var modalTitle =  deleteModal.querySelector('.modal-title')
+    var formId = deleteModal.querySelector('#deleteId')
+    modalTitle.textContent = 'Delete Product Id: ' + id;
+    formId.value = id;
+  })
+
+  var updateModal = document.getElementById('updateModal')
+  updateModal.addEventListener('show.bs.modal', function (event) {
+  var button = event.relatedTarget
+  var id = button.getAttribute('data-bs-id')
+  var name = button.getAttribute('data-bs-name')
+  var price = button.getAttribute('data-bs-price')
+  var type = button.getAttribute('data-bs-type')
+  var image = button.getAttribute('data-bs-image')
+  var modalTitle = updateModal.querySelector('.modal-title')
+  var formId = updateModal.querySelector('#modalId')
+  var formName = updateModal.querySelector('#modalName')
+  var formType = updateModal.querySelector('#modalType')
+  var formPrice = updateModal.querySelector('#modalPrice')
+  var formImage = updateModal.querySelector('#modalImage')
+  modalTitle.textContent = 'Update Product Id: ' + id
+  formName.value = name;
+  formId.value = id;
+  formType.value = type;
+  formPrice.value = price;
+  formImage.value = image;
+})
+
+</script>
+
+    <form action="/products" method="post" role ="form" enctype="application/x-www-form-urlencoded">
+        <legend class="darktxt">{{enterInfo}}</legend>
+
+        <label class="darktxt" for="name">{{name}}:</label><br>
+        <input type="text" id="name" name="name"><br>
+
+        <label class="darktxt" for="type">type:</label><br>
+        <input type="text" id="type" name="type"><br>
+
+        <label class="darktxt" for="price">{{price}}:</label><br>
+        <input type="text" id="price" name="price"><br>
+
+        <button type="submit" class="btn btn-primary">{{submit}}</button>
+    </form>
+</body>
