@@ -145,6 +145,14 @@ function containsObject(obj, list) {
     return false;
 }
 
+async function showCartPage(req, res){
+    const renderItems = {
+        products: list,
+    }
+    res.render("cart.hbs", renderItems);
+}
+
+
 /**
  * Handles the /cart endpoint. Shows the user's shopping cart.
  * @param {*} req The request object.
@@ -152,19 +160,20 @@ function containsObject(obj, list) {
  */
 async function showCart(req, res){
  
-   if(!req.cookies['sessionId']){
-        res.redirect("/products");
+   if(!req.cookies['sessionId'] || req.cookies == null){
+        res.render("error.hbs", {alertMessage: "You must be logged in to add to cart."})
     }
- 
-    if(req.body.addProduct){
-        list.push({name: req.body.name, type: req.body.type, price: req.body.price});
+    else{
+        if(req.body.addProduct){
+            list.push({name: req.body.name, type: req.body.type, price: req.body.price});
+        }
+        res.cookie("shoppingCart", list, {expires: new Date(Date.now() + 300000)});
+    
+        const renderItems = {
+            products: list,
+        }
+        res.render("cart.hbs", renderItems);
     }
-    res.cookie("shoppingCart", list, {expires: new Date(Date.now() + 300000)});
-
-    const renderItems = {
-        products: list,
-    }
-    res.render("cart.hbs", renderItems);
 }
 
 /**
@@ -209,6 +218,7 @@ router.post('/products', createProduct);
 router.post('/products/update', updateProduct);
 router.post('/products/delete', deleteProduct);
 
+router.get('/cart', showCartPage);
 router.post('/cart', showCart);
 router.delete('/cart/remove', deleteItemFromCart);
 router.get('/cart/buy', submitCart)
