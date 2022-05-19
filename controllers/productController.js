@@ -153,7 +153,18 @@ async function showCartPage(req, res){
 }
 
 const recentlyViewedItems = [];
-
+async function addToRecentlyViewedItems(req, res){
+    if(req.body.addProduct){
+        if(recentlyViewedItems.length > 3){ // if there are more than 3 products in recently viewed, 
+            recentlyViewedItems = recentlyViewedItems.reverse() // reverse the array to get first item
+            recentlyViewedItems.pop(); // pop the item from the array
+            recentlyViewedItems.push({name: req.body.name});
+        }else{
+            recentlyViewedItems.push({name: req.body.name});
+        }
+    }
+    res.cookie("recentlyViewed", list);
+}
 
 
 
@@ -164,6 +175,8 @@ const recentlyViewedItems = [];
  */
 async function showCart(req, res){
  
+    addToRecentlyViewedItems(req, res);     // add to recentlyViewedItems when adding to cart
+
    if(!req.cookies['sessionId'] || req.cookies == null){
         res.render("error.hbs", {alertMessage: "You must be logged in to add to cart."})
     }
@@ -232,6 +245,7 @@ module.exports = {
     updateProduct,
     showCart,
     deleteItemFromCart,
+    addToRecentlyViewedItems,
     submitCart,
     router,
     routeRoot

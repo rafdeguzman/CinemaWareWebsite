@@ -21,35 +21,26 @@
 <div class="row">
   <h2 id="featured-items">Featured Items</h2>
   <p></p>
-  <div class="col-4">
-    <div class="card" style="width:350px">
-      <img class="card-img-top" src="https://www.w3schools.com/css/paris.jpg" alt="Card image">
-      <div class="card-body">
-      <h4 class="card-title">John Doe</h4>
-      <p class="card-text">Some example text.</p>
-      <a href="#" class="btn btn-dark">add to cart</a>
-      </div>
-      </div>
+  {{#grouped_each 3 recentlyViewed}}
+    <div class="row">
+        {{#each this}}
+        <form action="/cart" method="post" class="col-sm-4 item">
+            <input type="hidden" name="addProduct" value="true">
+            <input type="hidden" name="name" value="{{this.name}}">
+            <div class="card" style="width: 18rem;">
+                {{#if this.image}}
+                <img class="card-img-top" src={{this.image}} alt="Card image cap" onerror="this.src= 'images/logo_wide_white.png'">
+                {{/if}}
+                {{#else}}
+                <img class="card-img-top" src="images/logo_wide_white.png" alt="Card image cap">
+                {{/else}}
+                <div class="card-body">
+                    <h5 class="card-title">{{this.name}}</h5>
+                    <button type="submit" class="btn btn-success">Add to Cart</button>
+                </div>
+            </div>
+        </form>
+        {{/each}}
     </div>
-  <div class="col-4">
-    <div class="card" style="width:350px">
-      <img class="card-img-top" src="https://www.w3schools.com/css/paris.jpg" alt="Card image">
-      <div class="card-body">
-      <h4 class="card-title">John Doe</h4>
-      <p class="card-text">Some example text.</p>
-      <a href="#" class="btn btn-dark">add to cart</a>
-      </div>
-    </div>  
-  </div>
-  <div class="col-4">
-    <div class="card" style="width:350px">
-      <img class="card-img-top" src="https://www.w3schools.com/css/paris.jpg" alt="Card image">
-      <div class="card-body">
-      <h4 class="card-title">John Doe</h4>
-      <p class="card-text">Some example text.</p>
-      <a href="#" class="btn btn-dark">add to cart</a>
-      </div>
-    </div>  
-  </div>
-</div> 
+    {{/grouped_each}}
 
