@@ -157,7 +157,7 @@ async function submitCart(req, res){
     try{
         // TODO: Submit order and input to order history of user.
         let cartList = req.cookies.shoppingCart;
-        let userId = req.cookies['sessionId'];
+        let userId = req.cookies.id;
         await sql.createOrder(cartList, userId);
         list = [];
         res.cookie("shoppingCart", null, {expires: new Date(Date.now())});

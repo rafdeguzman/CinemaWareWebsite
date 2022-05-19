@@ -130,6 +130,7 @@ async function Login(request, response) {
         response.cookie("sessionId", sessionId, {
           expires: sessions[sessionId].expiresAt,
         });
+        response.cookie("id", userId);
         response.redirect("/");
       // 200 success
     } else {
