@@ -30,6 +30,11 @@ let list = [];
 // products array to be passed in to the view for rendering
 let products = [];
 
+/**
+ * 
+ * @param {*} req The request object.
+ * @param {*} res The response object.
+ */
 async function createProduct(req, res){
     const renderItems = {
         products: products
@@ -46,6 +51,11 @@ async function createProduct(req, res){
     }   
 }
 
+/**
+ * 
+ * @param {*} req The request object.
+ * @param {*} res The response object.
+ */
 async function updateProduct(req, res){
     const renderItems = {
         products: products
@@ -61,6 +71,11 @@ async function updateProduct(req, res){
     }   
 }
 
+/**
+ * 
+ * @param {*} req The request object.
+ * @param {*} res The response object.
+ */
 async function deleteProduct(req, res){
     const renderItems = {
         products: products
@@ -77,6 +92,11 @@ async function deleteProduct(req, res){
 
 }
 
+/**
+ * 
+ * @param {*} req The request object.
+ * @param {*} res The response object.
+ */
 async function showProducts(req, res){
     products = [];
     const renderItems = {
@@ -125,6 +145,11 @@ function containsObject(obj, list) {
     return false;
 }
 
+/**
+ * Handles the /cart endpoint. Shows the user's shopping cart.
+ * @param {*} req The request object.
+ * @param {*} res The response object.
+ */
 async function showCart(req, res){
  
    if(!req.cookies['sessionId']){
@@ -141,6 +166,12 @@ async function showCart(req, res){
     }
     res.render("cart.hbs", renderItems);
 }
+
+/**
+ * Handles the /cart/remove endpoint. Shows the user that a cart item has been removed.
+ * @param {*} req The request object.
+ * @param {*} res The response object.
+ */
 async function deleteItemFromCart(req, res){
     
     let name = req.body.name
@@ -153,9 +184,13 @@ async function deleteItemFromCart(req, res){
     res.render("removeCartItemSuccess.hbs", renderItems);
 }
 
+/**
+ * Handles the /cart/buy endpoint. Shows the user that their order was successful.
+ * @param {*} req The request object.
+ * @param {*} res The response object.
+ */
 async function submitCart(req, res){
     try{
-        // TODO: Submit order and input to order history of user.
         let cartList = req.cookies.shoppingCart;
         let userId = req.cookies.id;
         await sql.createOrder(cartList, userId);
