@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Home</title>
+    <title>JSDoc: Source: loginController.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,32 +17,42 @@
 
 <div id="main">
 
-    <h1 class="page-title">Home</h1>
+    <h1 class="page-title">Source: loginController.js</h1>
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const express = require('express');
+const router = express.Router();
+const routeRoot = '/';
 
+/**
+ * Handles the /login endpoint. Generates the login page.
+ * @param {*} req The request object.
+ * @param {*} res The response object.
+ */
+function generateLoginPage(req, res){
+    const loginPageData = {
+        'title': 'Login',
+        'ignore': 'true',
+        loginFields: [{input:"username",id:"usernameLogin",type:"text"},{input:"password",id:"passwordLogin",type:"password"}],
+        'buttonName': 'login'
+    }
+    res.render('login.hbs', loginPageData);
+}
+router.get('/login', generateLoginPage);
 
-    <h3> </h3>
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
+module.exports = {
+    generateLoginPage,
+    router,
+    routeRoot
+}</code></pre>
+        </article>
+    </section>
 
 
 

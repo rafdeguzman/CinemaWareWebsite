@@ -30,6 +30,11 @@ let list = [];
 // products array to be passed in to the view for rendering
 let products = [];
 
+/**
+ * Handles the /products endpoint. Adds a product to the database.
+ * @param {*} req The request object.
+ * @param {*} res The response object.
+ */
 async function createProduct(req, res){
     const renderItems = {
         products: products
@@ -46,6 +51,11 @@ async function createProduct(req, res){
     }   
 }
 
+/**
+ * Handles the /products/update endpoint. Update the information of a product in the database.
+ * @param {*} req The request object.
+ * @param {*} res The response object.
+ */
 async function updateProduct(req, res){
     const renderItems = {
         products: products
@@ -61,6 +71,11 @@ async function updateProduct(req, res){
     }   
 }
 
+/**
+ * Handles the /products/delete endpoint. Deletes a product from the database.
+ * @param {*} req The request object.
+ * @param {*} res The response object.
+ */
 async function deleteProduct(req, res){
     const renderItems = {
         products: products
@@ -77,6 +92,11 @@ async function deleteProduct(req, res){
 
 }
 
+/**
+ * Handles the /products endpoint. Shows user all products from the products page.
+ * @param {*} req The request object.
+ * @param {*} res The response object.
+ */
 async function showProducts(req, res){
     products = [];
     const renderItems = {
@@ -125,22 +145,42 @@ function containsObject(obj, list) {
     return false;
 }
 
-async function showCart(req, res){
- 
-   if(!req.cookies['sessionId']){
-        res.redirect("/products");
-    }
- 
-    if(req.body.addProduct){
-        list.push({name: req.body.name, type: req.body.type, price: req.body.price});
-    }
-    res.cookie("shoppingCart", list, {expires: new Date(Date.now() + 300000)});
-
+async function showCartPage(req, res){
     const renderItems = {
         products: list,
     }
     res.render("cart.hbs", renderItems);
 }
+
+
+/**
+ * Handles the /cart endpoint. Shows the user's shopping cart.
+ * @param {*} req The request object.
+ * @param {*} res The response object.
+ */
+async function showCart(req, res){
+ 
+   if(!req.cookies['sessionId'] || req.cookies == null){
+        res.render("error.hbs", {alertMessage: "You must be logged in to add to cart."})
+    }
+    else{
+        if(req.body.addProduct){
+            list.push({name: req.body.name, type: req.body.type, price: req.body.price});
+        }
+        res.cookie("shoppingCart", list, {expires: new Date(Date.now() + 300000)});
+    
+        const renderItems = {
+            products: list,
+        }
+        res.render("cart.hbs", renderItems);
+    }
+}
+
+/**
+ * Handles the /cart/remove endpoint. Shows the user that a cart item has been removed.
+ * @param {*} req The request object.
+ * @param {*} res The response object.
+ */
 async function deleteItemFromCart(req, res){
     
     let name = req.body.name
@@ -153,9 +193,13 @@ async function deleteItemFromCart(req, res){
     res.render("removeCartItemSuccess.hbs", renderItems);
 }
 
+/**
+ * Handles the /cart/buy endpoint. Shows the user that their order was successful.
+ * @param {*} req The request object.
+ * @param {*} res The response object.
+ */
 async function submitCart(req, res){
     try{
-        // TODO: Submit order and input to order history of user.
         let cartList = req.cookies.shoppingCart;
         let userId = req.cookies.id;
         await sql.createOrder(cartList, userId);
@@ -174,6 +218,7 @@ router.post('/products', createProduct);
 router.post('/products/update', updateProduct);
 router.post('/products/delete', deleteProduct);
 
+router.get('/cart', showCartPage);
 router.post('/cart', showCart);
 router.delete('/cart/remove', deleteItemFromCart);
 router.get('/cart/buy', submitCart)
