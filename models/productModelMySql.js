@@ -181,7 +181,7 @@ async function deleteProduct(id) {
  * Finds a product using specified id and returns the specified object.
  * @param {Number} id The ID of the product.
  */
-async function findProduct(id) {
+async function findProductWithId(id) {
     const sqlQuery = 'SELECT name FROM products WHERE id = \"' + id + '\"';
     try {
         await connection.execute(sqlQuery)
@@ -197,6 +197,29 @@ async function findProduct(id) {
         logger.error(error);
         throw new DBConnectionError();
     }        
+}
+
+/**
+ * Finds a product using specified name and returns the specified object.
+ * @param {String} name of the product.
+ */
+ async function findProductWithName(name) {
+  const sqlQuery = 'SELECT name FROM products WHERE name = \"' + name + '\"';
+  try {
+      await connection.execute(sqlQuery)
+      .then((x) => {
+          logger.info("Product with name " + name + " selected");        
+        let object = x[0][0];
+        return { "name": object.name, "type": object.type, "price": object.price, "image": object.image };  //works and returns object
+      })
+      .catch((error) => {
+        logger.error(error);
+          throw new InvalidInputError();
+      })
+  } catch (error) {
+      logger.error(error);
+      throw new DBConnectionError();
+  }        
 }
 
 /**
@@ -464,7 +487,8 @@ module.exports = {
     updateProduct,
     deleteProduct,
     getProducts,
-    findProduct,
+    findProductWithId,
+    findProductWithName,
     getConnection,
     createProductData,
     addUser,

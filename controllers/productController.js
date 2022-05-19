@@ -152,18 +152,19 @@ async function showCartPage(req, res){
     res.render("cart.hbs", renderItems);
 }
 
-const recentlyViewedItems = [];
+let recentlyViewedItems = [];
 async function addToRecentlyViewedItems(req, res){
-    if(req.body.addProduct){
-        if(recentlyViewedItems.length > 3){ // if there are more than 3 products in recently viewed, 
+    if(req.body.addProduct && !containsObject({name: req.body.name, image: req.body.image}, recentlyViewedItems)){
+        if(recentlyViewedItems.length > 2){ // if there are more than 3 products in recently viewed, 
             recentlyViewedItems = recentlyViewedItems.reverse() // reverse the array to get first item
             recentlyViewedItems.pop(); // pop the item from the array
-            recentlyViewedItems.push({name: req.body.name});
+            recentlyViewedItems.push({name: req.body.name, image: req.body.image});
         }else{
-            recentlyViewedItems.push({name: req.body.name});
+            recentlyViewedItems.push({name: req.body.name, image: req.body.image});
         }
+        
     }
-    res.cookie("recentlyViewed", list);
+    res.cookie("recentlyViewed", recentlyViewedItems);
 }
 
 
