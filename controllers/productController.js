@@ -31,7 +31,7 @@ let list = [];
 let products = [];
 
 /**
- * 
+ * Handles the /products endpoint. Adds a product to the database.
  * @param {*} req The request object.
  * @param {*} res The response object.
  */
@@ -52,7 +52,7 @@ async function createProduct(req, res){
 }
 
 /**
- * 
+ * Handles the /products/update endpoint. Update the information of a product in the database.
  * @param {*} req The request object.
  * @param {*} res The response object.
  */
@@ -72,7 +72,7 @@ async function updateProduct(req, res){
 }
 
 /**
- * 
+ * Handles the /products/delete endpoint. Deletes a product from the database.
  * @param {*} req The request object.
  * @param {*} res The response object.
  */
@@ -93,7 +93,7 @@ async function deleteProduct(req, res){
 }
 
 /**
- * 
+ * Handles the /products endpoint. Shows user all products from the products page.
  * @param {*} req The request object.
  * @param {*} res The response object.
  */

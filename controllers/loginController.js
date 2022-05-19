@@ -2,6 +2,11 @@ const express = require('express');
 const router = express.Router();
 const routeRoot = '/';
 
+/**
+ * Handles the /login endpoint. Generates the login page.
+ * @param {*} req The request object.
+ * @param {*} res The response object.
+ */
 function generateLoginPage(req, res){
     const loginPageData = {
         'title': 'Login',
@@ -14,6 +19,7 @@ function generateLoginPage(req, res){
 router.get('/login', generateLoginPage);
 
 module.exports = {
+    generateLoginPage,
     router,
     routeRoot
 }

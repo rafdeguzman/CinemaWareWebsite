@@ -179,7 +179,7 @@ async function deleteProduct(id) {
 
 /**
  * Finds a product using specified id and returns the specified object.
- * @param {*} id 
+ * @param {Number} id The ID of the product.
  */
 async function findProduct(id) {
     const sqlQuery = 'SELECT name FROM products WHERE id = \"' + id + '\"';
@@ -200,9 +200,8 @@ async function findProduct(id) {
 }
 
 /**
- * 
+ * Gets the list of products from the database.
  * @returns Returns an array of all products with name, type and price as columns
- * 
  */
 async function getProducts(){
     const sqlQuery = 'SELECT id, name, type, price, image FROM products'
@@ -216,8 +215,11 @@ async function getProducts(){
     }
 }
 
-
-
+/**
+ * Creates an order and inserts it in the database.
+ * @param {Array} list The list of products.
+ * @param {Number} userId The current user ID.
+ */
 async function createOrder(list, userId) {
   try {
       await connection.execute("INSERT INTO orders (orderDate) VALUES(curdate());");
