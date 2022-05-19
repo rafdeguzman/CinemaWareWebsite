@@ -1,6 +1,7 @@
 const mysql = require('mysql2/promise');
 const logger = require('../logger');
 const { connect } = require('../app');
+const valid = require('./validateUtils');
 var connection;
 
 /**  Error for 400-level issues */
@@ -34,6 +35,9 @@ async function initialize(dbname, reset) {
             let dropQuery = "DROP TABLE IF EXISTS productOrder";
             await connection.execute(dropQuery);
             logger.info("Table productOrder dropped");
+            dropQuery = "DROP TABLE IF EXISTS orderHistory";
+            await connection.execute(dropQuery);
+            logger.info("Table orderHistory dropped");
             dropQuery = "DROP TABLE IF EXISTS orders";
             await connection.execute(dropQuery);
             logger.info("Table orders dropped");
@@ -64,6 +68,11 @@ async function initialize(dbname, reset) {
         sqlQuery = 'CREATE TABLE IF NOT EXISTS productOrder(productId int, orderId int, quantity int, PRIMARY KEY(productId, orderId), FOREIGN KEY(productId) REFERENCES products(id), FOREIGN KEY(orderId) REFERENCES orders(id))'
         await connection.execute(sqlQuery);
         logger.info("Table productOrder created/exists");
+
+        // create orderHistory table 
+        sqlQuery = 'CREATE TABLE IF NOT EXISTS orderHistory(userId int, orderId int, PRIMARY KEY(userId, orderId), FOREIGN KEY(userId) REFERENCES users(id), FOREIGN KEY(orderId) REFERENCES orders(id))'
+        await connection.execute(sqlQuery);
+        logger.info("Table orderHistory created/exists");
 
         if(!isUserFound('admin')){
             sqlQuery =
@@ -112,7 +121,7 @@ async function initialize(dbname, reset) {
  * @throws InvalidInputError, DBConnectionError
  */
 async function addProduct(name, type, price, image) {
-    if (!validateProduct(name, type, price)) {
+    if (!valid.validateProduct(type, price)) {
         throw new InvalidInputError();
     }
     const sqlQuery = 'INSERT INTO products (name, type, price, image) VALUES (\"'
@@ -138,7 +147,7 @@ async function addProduct(name, type, price, image) {
  * @throws InvalidInputError, DBConnectionError
  */
 async function updateProduct(id, name, type, price, image) {
-    if (!validateProduct(name, type, price)) {
+    if (!valid.validateProduct(type, price)) {
         throw new InvalidInputError();
     }
     const sqlQuery = 'UPDATE products SET name = \"'
@@ -208,14 +217,35 @@ async function getProducts(){
     }
 }
 
-const types = ['dslr', 'video', 'webcam', 'camera'];
 
-function validateProduct(name, type, price){
-    if(types.includes(type) && price > 0)
-        return true;
-    else
-        return false;
+
+async function createOrder(list, userId) {
+  try {
+      await connection.execute("INSERT INTO orders (orderDate) VALUES(GETDATE());");
+      logger.info("Order was created.");
+      let orderId = connection.execute("SELECT MAX(id) FROM orders;");
+      let productId;
+
+      for (let i = 0; i < list.length; i++) {
+          productId = await connection.execute("SELECT id FROM products WHERE name = '" + list[i].name + "';");
+          existingProduct = await connection.execute("SELECT * FROM productOrder WHERE productId = " + productId + " AND orderId = " + orderId + ";");
+          if (!existingProduct) {
+              await connection.execute("UPDATE productOrder SET quantity = quantity + 1 WHERE productId = " + productId + " AND orderId = " + orderId + ";");
+          }
+          else {
+              await connection.execute("INSERT INTO productOrder (productId, orderId, quantity) VALUES(" + productId + ", " + orderId + ", 1);");
+          }
+      }
+      logger.info("Items added to the ProductOrder table.");
+      
+      await connection.execute('INSERT INTO orderHistory (UserId, OrderId) VALUES(' + userId + ', ' + orderId + ');')
+
+  } catch (error) {
+      logger.error(error);
+      throw new DBConnectionError();
+  }
 }
+
 
 /**
  * Fills the database with data from the products array
@@ -238,11 +268,12 @@ let products = [
 ];
 
 
+
 /**
  * Adds the given user to the db if valid and returns that
  *  user as an object
  *
- * @param {string} username username of user.  Must be alphabetical only with no spaces.(see validateUtils.isValid)
+ * @param {string} username username of user.  Must be alphanumeric.
  * @param {string} password password of user.  Can be any combination of string
  * @param {string} firstName firstName of user.  Must be contained of letters only.
  * @param {string} lastName  lastName of user.  Must be contained of letters only.
@@ -251,13 +282,16 @@ let products = [
  */
  async function addUser(username, password, firstName, lastName) {
   username = username.trim();
-// if (!validate.isValidUserName(username)) {
-//   throw new InvalidInputError();
-// }
-// if (!validate.isValidNames(firstName, lastName)) {
-//   throw new InvalidInputError();
-// }
-if( await isUserFound(username)){
+  if (!valid.validateUsername(username)) {
+    throw new InvalidInputError();
+  }
+  if (!valid.isValidNames(firstName, lastName)) {
+    throw new InvalidInputError("Invalid first Name or Last Name. Must only contain letters.");
+  }
+  if (!valid.isValidPassword(password)) {
+    throw new InvalidInputError("Invalid Password. Must contain a minimum of 8 characters, 1 uppercase, 1 lowercase and 1 symbol.");
+  }
+  if( await isUserFound(username)){
     return false;
 }
 let sqlQuery = "INSERT INTO users (username, password, firstName, lastName) VALUES ('"+username+"', '"+password+"', '"+firstName+"', '"+lastName+"')";
@@ -307,11 +341,11 @@ try {
  */
  async function getUser(username, password) {
     username = username.trim();
-  // if (!validate.isValid(username)) {
-  //   throw new InvalidInputError();
-  // }
+  if (!valid.validateUsername(username)) {
+    throw new InvalidInputError();
+  }
   const sqlQuery =
-    'select username from users where username = "' +
+    'select username, id from users where username = "' +
     username +
     '" and password = "' +
     password +
@@ -336,9 +370,12 @@ try {
  */
 async function UpdateUserPassword(originalUsername, updatePassword) {
     originalUsername = originalUsername.trim();
-  // if (!validate.isValid(originalUsername)) {
-  //   throw new InvalidInputError();
-  // }
+  if (!valid.validateUsername(originalUsername)) {
+    throw new InvalidInputError();
+  }
+  if (!validate.isValidPassword(updatePassword)) {
+    throw new InvalidInputError("Invalid Password. Must contain a minimum of 8 characters, 1 uppercase, 1 lowercase and 1 symbol.");
+  }
   let sqlQuery =
     'select password from users where username = "' + originalUsername + '"';
   try {
@@ -374,9 +411,9 @@ async function UpdateUserPassword(originalUsername, updatePassword) {
  */
  async function DeleteUser(originalUsername) {
     originalUsername = originalUsername.trim();
-  // if (!validate.isValid(originalUsername)) {
-  //   throw new InvalidInputError();
-  // }
+  if (!valid.validateUsername(originalUsername)) {
+    throw new InvalidInputError();
+  }
 
   let sqlQuery =
     'select password from users where username = "' + originalUsername + '"';
@@ -431,6 +468,7 @@ module.exports = {
     getUser,
     UpdateUserPassword,
     DeleteUser,
+    createOrder,
     InvalidInputError,
     DBConnectionError
 }

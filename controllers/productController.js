@@ -126,6 +126,9 @@ function containsObject(obj, list) {
 }
 
 async function showCart(req, res){
+    if(!req.cookies['sessionId']){
+        res.redirect("/products");
+    }
 
     if(req.body.addProduct){
         list.push({name: req.body.name, type: req.body.type, price: req.body.price});
@@ -157,6 +160,20 @@ async function deleteItemFromCart(req, res){
     res.render("removeCartItemSuccess.hbs", renderItems);
 }
 
+async function submitCart(req, res){
+    try{
+        // TODO: Submit order and input to order history of user.
+        let cartList = req.cookies['shoppingCart'];
+        let userId = req.cookies['sessionId'];
+        await sql.createOrder(cartList, userId);
+        list = [];
+        res.cookie("shoppingCart", null, {expires: new Date(Date.now())});
+
+        res.render('submitCart.hbs', null)
+    } catch (e) {
+        throw new sql.DBConnectionError();
+    }
+}
 
 router.get('/products', showProducts);
 router.post('/products', createProduct);
@@ -166,11 +183,14 @@ router.post('/products/delete', deleteProduct);
 router.get('/cart', showCartPage);
 router.post('/cart', showCart);
 router.post('/cart/remove', deleteItemFromCart);
+router.get('/cart/buy', submitCart)
 
 module.exports = {
     populateProducts,
     updateProduct,
     showCart,
+    deleteItemFromCart,
+    submitCart,
     router,
     routeRoot
 }
