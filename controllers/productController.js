@@ -160,19 +160,20 @@ async function showCartPage(req, res){
  */
 async function showCart(req, res){
  
-   if(!req.cookies['sessionId']){
-        res.redirect("/products");
+   if(!req.cookies['sessionId'] || req.cookies == null){
+        res.render("error.hbs", {alertMessage: "You must be logged in to add to cart."})
     }
- 
-    if(req.body.addProduct){
-        list.push({name: req.body.name, type: req.body.type, price: req.body.price});
+    else{
+        if(req.body.addProduct){
+            list.push({name: req.body.name, type: req.body.type, price: req.body.price});
+        }
+        res.cookie("shoppingCart", list, {expires: new Date(Date.now() + 300000)});
+    
+        const renderItems = {
+            products: list,
+        }
+        res.render("cart.hbs", renderItems);
     }
-    res.cookie("shoppingCart", list, {expires: new Date(Date.now() + 300000)});
-
-    const renderItems = {
-        products: list,
-    }
-    res.render("cart.hbs", renderItems);
 }
 
 /**
