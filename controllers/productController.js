@@ -152,6 +152,10 @@ async function showCartPage(req, res){
     res.render("cart.hbs", renderItems);
 }
 
+const recentlyViewedItems = [];
+
+
+
 
 /**
  * Handles the /cart endpoint. Shows the user's shopping cart.
