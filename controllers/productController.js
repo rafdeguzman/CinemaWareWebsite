@@ -397,7 +397,6 @@ async function deleteItemFromCart(req, res){
  */
 async function submitCart(req, res){
     try{
-        
         let lang = req.cookies.language;
         let current;
         let orderConfirmed;
