@@ -217,6 +217,14 @@ async function deleteItemFromCart(req, res){
 }
 
 /**
+ * remove all the cart item.
+ */
+ async function deleteAllItemFromCart(){
+    
+    list = [];
+}
+
+/**
  * Handles the /cart/buy endpoint. Shows the user that their order was successful.
  * @param {*} req The request object.
  * @param {*} res The response object.
@@ -253,6 +261,7 @@ module.exports = {
     deleteItemFromCart,
     addToRecentlyViewedItems,
     submitCart,
+    deleteAllItemFromCart,
     router,
     routeRoot
 }
