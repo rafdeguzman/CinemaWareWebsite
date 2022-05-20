@@ -1,7 +1,7 @@
 const express = require("express");
 const model = require("../models/productModelMySql");
-const product = require("./productController");
 const router = express.Router();
+const product = require("./productController");
 const routeRoot = "/";
 const uuid = require("uuid");
 
@@ -645,19 +645,15 @@ async function Logout(request, response){
         response.redirect('/');
       return;
   }
-  delete sessions[authenticatedSession.sessionId]
-  console.log("Logged out user " + authenticatedSession.userSession.username);
-  
-
 
   product.deleteAllItemFromCart();
+  delete sessions[authenticatedSession.sessionId]
+  console.log("Logged out user " + authenticatedSession.userSession.username);
   
   response.cookie("sessionId", "", { expires: new Date() }); // "erase" cookie by forcing it to expire.
   response.cookie("id", "", { expires: new Date() }); // "erase" cookie by forcing it to expire.
   response.cookie("shoppingCart", "", { expires: new Date() }); // "erase" cookie by forcing it to expire.
   
-  
-
   response.render("home.hbs", {
     alertSuccess:true ,alertMessage: alertMessage200,  description:description, recentItems:recentItems, shop: shop, currentPromotions:currentPromotions, title1:title1, title2:title2, title3:title3, message1:message1, message2:message2, message3:message3, link1:link1, link2:link2, link3:link3
 });

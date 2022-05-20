@@ -263,7 +263,6 @@ async function showCartPage(req, res){
     let yourCart;
     let confirm;
     let remove;
-
     if (!lang || lang === 'en') {
         current = 'English';
         yourCart = 'YOUR CART'
@@ -315,6 +314,7 @@ async function showCart(req, res){
     let confirm;
     let remove;
     let alertMessage;
+    let submitCartbtn;
  
     if (!lang || lang === 'en') {
         current = 'English';
@@ -333,6 +333,10 @@ async function showCart(req, res){
 
     addToRecentlyViewedItems(req, res);     // add to recentlyViewedItems when adding to cart
 
+    if(req.cookies['sessionId']){
+        submitCartbtn = true
+     }
+
    if(!req.cookies['sessionId'] || req.cookies == null){
        res.status(400);
         res.render("error.hbs", {alertMessage: "You must be logged in to add to cart."})
@@ -347,7 +351,8 @@ async function showCart(req, res){
             products: list,
             yourCart: yourCart,
             confirm: confirm,
-            remove: remove
+            remove: remove,
+            submitCartbtn:submitCartbtn
         }
         res.render("cart.hbs", renderItems);
     }
@@ -391,10 +396,9 @@ async function deleteItemFromCart(req, res){
 }
 
 /**
- * remove all the cart item.
+ * remove all item  in cart
  */
  async function deleteAllItemFromCart(){
-    
     list = [];
 }
 
@@ -451,8 +455,7 @@ module.exports = {
     showCart,
     deleteItemFromCart,
     addToRecentlyViewedItems,
-    submitCart,
-    deleteAllItemFromCart,
+    submitCart,deleteAllItemFromCart,
     router,
     routeRoot
 }
