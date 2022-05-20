@@ -272,6 +272,7 @@ async function Login(request, response) {
   let alertMessage400;
   let alertMessage500;
   let alertMessageLoggedIn;
+  let alertAlreadyLogged;
 
   if (!lang || lang === 'en') {
       current = 'English';
@@ -310,6 +311,7 @@ async function Login(request, response) {
       alertMessage200 = "Coonecté avec succès"
       alertMessage400 = "Erreur!! Utilisateur exist déjà"
       alertMessage500 = "Pas possible d'ajouter l'utilisateur pour l'erreur de connexion à la base de données"
+      alertMessageLoggedIn = "Déjà connecté"
 
   }
   try {
@@ -341,7 +343,7 @@ async function Login(request, response) {
     }
     else{  
       response.render("home.hbs", {
-        alertAlreadyLogged:true ,alertMessage: alertAlreadyLogged, description:description, recentItems:recentItems, shop: shop, currentPromotions:currentPromotions, title1:title1, title2:title2, title3:title3, message1:message1, message2:message2, message3:message3, link1:link1, link2:link2, link3:link3
+        alertAlreadyLogged:true ,alertMessage: alertMessageLoggedIn, description:description, recentItems:recentItems, shop: shop, currentPromotions:currentPromotions, title1:title1, title2:title2, title3:title3, message1:message1, message2:message2, message3:message3, link1:link1, link2:link2, link3:link3
       })}
 
   } catch (error) {
