@@ -92,12 +92,10 @@ async function deleteProduct(req, res){
 }
 
 async function adminLoggedIn(req, res){
-    if(req.cookies['sessionId'])  // if id is 1 that means logged in as admin
+    if(req.cookies['id'] == '1')  // if id is 1 that means logged in as admin
         return true;
     else return false;
 }
-
-
 
 /**
  * Handles the /products endpoint. Shows user all products from the products page.
