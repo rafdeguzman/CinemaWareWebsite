@@ -11,6 +11,13 @@ beforeEach(async () => {
     await model.initialize(dbName, true);
 });
 
+afterEach(async () => {
+    connection = model.getConnection();
+    if (connection) {
+        await connection.close();
+    }
+});	
+
 /**
  * SUCCESS case for login (admin user already exists)
  */
@@ -23,18 +30,20 @@ test("POST /login success case", async () => {
 
 });
 
-afterEach(async () => {
-    connection = model.getConnection();
-    if (connection) {
-        await connection.close();
-    }
-});	
-
 /*==================================================================================================*/
 
-beforeEach(async () => {
-    await model.initialize(dbName, true);
+test("POST /products success case", async () =>{
+    const testResponse = await testRequest.post('/products').send({
+        name: 'Test Camera',
+        type: 'dslr', 
+        price: 500,
+        image: '',
+    })
+    expect(testResponse.status).toBe(302);  // since products is being redirected to get endpoint
 });
+
+
+/*==================================================================================================*/
 
 /**
  * FAILURE case for login (test user does not exist)
@@ -48,18 +57,7 @@ test("POST /login falure case", async () => {
 
 });
 
-afterEach(async () => {
-    connection = model.getConnection();
-    if (connection) {
-        await connection.close();
-    }
-});	
-
 /*==================================================================================================*/
-
-beforeEach(async () => {
-    await model.initialize(dbName, true);
-});
 
 /**
  * SUCCESS case for signup (all fields are valid)
@@ -75,18 +73,7 @@ test("POST /signup success case", async () => {
 
 });
 
-afterEach(async () => {
-    connection = model.getConnection();
-    if (connection) {
-        await connection.close();
-    }
-});
-
 /*==================================================================================================*/
-
-beforeEach(async () => {
-    await model.initialize(dbName, true);
-});
 
 /**
  * FAILURE case for signup (invalid firstname and lastname)
@@ -102,18 +89,7 @@ test("POST /signup failure case", async () => {
 
 });
 
-afterEach(async () => {
-    connection = model.getConnection();
-    if (connection) {
-        await connection.close();
-    }
-});
-
 /*==================================================================================================*/
-
-beforeEach(async () => {
-    await model.initialize(dbName, true);
-});
 
 /**
  * FAILURE case for signup (invalid username - symbol)
@@ -129,18 +105,7 @@ test("POST /signup failure case", async () => {
 
 });
 
-afterEach(async () => {
-    connection = model.getConnection();
-    if (connection) {
-        await connection.close();
-    }
-});
-
 /*==================================================================================================*/
-
-beforeEach(async () => {
-    await model.initialize(dbName, true);
-});
 
 /**
  * FAILURE case for signup (invalid password)
@@ -156,18 +121,7 @@ test("POST /signup failure case", async () => {
 
 });
 
-afterEach(async () => {
-    connection = model.getConnection();
-    if (connection) {
-        await connection.close();
-    }
-});
-
 /*==================================================================================================*/
-
-beforeEach(async () => {
-    await model.initialize(dbName, true);
-});
 
 /**
  * FAILURE case for signup (username already exists)
@@ -191,18 +145,7 @@ test("POST /signup failure case", async () => {
 
 });
 
-afterEach(async () => {
-    connection = model.getConnection();
-    if (connection) {
-        await connection.close();
-    }
-});
-
 /*==================================================================================================*/
-
-beforeEach(async () => {
-    await model.initialize(dbName, true);
-});
 
 /**
  * FAILURE case for signup (invalid password)
@@ -216,11 +159,4 @@ test("POST /signup failure case", async () => {
     })
     expect(testResponse.status).toBe(400);
 
-});
-
-afterEach(async () => {
-    connection = model.getConnection();
-    if (connection) {
-        await connection.close();
-    }
 });
