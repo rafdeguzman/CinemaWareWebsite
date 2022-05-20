@@ -1,6 +1,5 @@
 const express = require("express");
 const model = require("../models/productModelMySql");
-const product = require("./productController");
 const router = express.Router();
 const routeRoot = "/";
 const uuid = require("uuid");
@@ -308,16 +307,10 @@ async function Logout(request, response){
   delete sessions[authenticatedSession.sessionId]
   console.log("Logged out user " + authenticatedSession.userSession.username);
   
-
-
-  product.deleteAllItemFromCart();
-  
   response.cookie("sessionId", "", { expires: new Date() }); // "erase" cookie by forcing it to expire.
   response.cookie("id", "", { expires: new Date() }); // "erase" cookie by forcing it to expire.
   response.cookie("shoppingCart", "", { expires: new Date() }); // "erase" cookie by forcing it to expire.
   
-  
-
   response.render("home.hbs", {
     alertSuccess:true ,alertMessage: "Successfully log out"
   });
