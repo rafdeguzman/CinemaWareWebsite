@@ -232,6 +232,10 @@ async function showProducts(req, res){
     res.render('products.hbs', renderItems)
 }
 
+
+/**
+ * Populates the products array retrieving all the products from the product model. 
+ */
 async function populateProducts(){
     products = [];
     try{
@@ -247,6 +251,12 @@ async function populateProducts(){
     }
 }
 
+/**
+ * Checks if the object exists in the list
+ * @param {*} obj 
+ * @param {*} list 
+ * @returns 
+ */
 function containsObject(obj, list) {
     var i;
     for (i = 0; i < list.length; i++) {
@@ -257,6 +267,11 @@ function containsObject(obj, list) {
     return false;
 }
 
+/**
+ * Shows the cart page with variables for language.
+ * @param {*} req 
+ * @param {*} res 
+ */
 async function showCartPage(req, res){
     let lang = req.cookies.language;
     let current;
@@ -293,6 +308,12 @@ async function showCartPage(req, res){
 }
 
 let recentlyViewedItems = [];
+
+/**
+ * Adds an item to the recently viewed items list. It is then stored as a cookie to be retrieved in the home page.
+ * @param {*} req 
+ * @param {*} res 
+ */
 async function addToRecentlyViewedItems(req, res){
     if(req.body.addProduct && !containsObject({name: req.body.name, image: req.body.image}, recentlyViewedItems)){
         if(recentlyViewedItems.length > 2){ // if there are more than 3 products in recently viewed, 
