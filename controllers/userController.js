@@ -1,6 +1,7 @@
 const express = require("express");
 const model = require("../models/productModelMySql");
 const router = express.Router();
+const product = require("./productController");
 const routeRoot = "/";
 const uuid = require("uuid");
 
@@ -304,6 +305,8 @@ async function Logout(request, response){
         response.redirect('/');
       return;
   }
+
+  product.deleteAllItemFromCart();
   delete sessions[authenticatedSession.sessionId]
   console.log("Logged out user " + authenticatedSession.userSession.username);
   

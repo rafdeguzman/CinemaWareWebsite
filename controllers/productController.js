@@ -395,6 +395,12 @@ async function deleteItemFromCart(req, res){
     res.render("removeCartItemSuccess.hbs", renderItems);
 }
 
+/**
+ * remove all item  in cart
+ */
+ async function deleteAllItemFromCart(){
+    list = [];
+}
 
 /**
  * Handles the /cart/buy endpoint. Shows the user that their order was successful.
@@ -449,7 +455,7 @@ module.exports = {
     showCart,
     deleteItemFromCart,
     addToRecentlyViewedItems,
-    submitCart,
+    submitCart,deleteAllItemFromCart,
     router,
     routeRoot
 }
