@@ -6,11 +6,11 @@
             <div class="card-body" style="margin-left: 1rem; margin-right:1rem;">
             <form class="mb-3" action="/login" method="post" role ="form" enctype="application/x-www-form-urlencoded">
                 {{#each loginFields}}
-                    <input type="{{this.type}}" id="{{this.id}}" class="form-control form-control-lg" name="{{this.input}}" placeholder="{{this.input}}" /><br />
+                    <input type="{{this.type}}" id="{{this.id}}" class="form-control form-control-lg" name="{{name}}" placeholder="{{this.input}}" /><br />
                 {{/each}}
                 <button class="btn btn-primary btn-lg btn-block" id="login-button" type="submit" style="width:100%; background-color:brown">{{buttonName}}</button>
             </form>
-            <a href="#" style="margin-top:2rem;">Forgot your password?</p>  
+            <a href="#" style="margin-top:2rem;">{{forgotPass}}</p>  
             </div>
         </div>
     </div>

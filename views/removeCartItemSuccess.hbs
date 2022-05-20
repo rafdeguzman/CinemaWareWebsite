@@ -1,7 +1,7 @@
 <body>
-    <h1>{{name}} has been deleted from your cart!</h1>
+    <h1>{{name}} {{deleteMessage}}</h1>
     <form action="/cart" method="post">
-        <input type="submit" value="Come Back To Cart">
+        <input type="submit" value="{{backToCart}}">
     </form>
-    <a href="/products">Continue Shopping</a>
+    <a href="/products">{{shoppingMessage}}</a>
 </body>
