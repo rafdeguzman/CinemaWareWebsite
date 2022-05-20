@@ -9,9 +9,9 @@
             <input type="hidden" name="price" value="{{this.price}}">
             <input type="hidden" name="image" value="{{this.image}}">
             <div class="card" style="width: 18rem;">
-                {{#if isAdmin}}
+                {{!-- {{#if isAdmin}} --}}
                 <p>product type: {{this.type}} product id: {{this.id}}</p>
-                {{/if}}
+                {{!-- {{/if}} --}}
                 {{#if this.image}}
                 <img class="card-img-top" src={{this.image}} alt="Card image cap" onerror="this.src= 'images/logo_wide_white.png'">
                 {{/if}}
@@ -22,17 +22,17 @@
                     <h5 class="card-title">{{this.name}}</h5>
                     <p class="card-text">${{this.price}}</p>
                     <div class="btn-group mr-2" role="group" aria-label="groupedbutton">
-                        {{#if isAdmin}}
+                        {{!-- {{#if isAdmin}} --}}
                         <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#updateModal" data-bs-id="{{this.id}}" data-bs-name="{{this.name}}" data-bs-type="{{this.type}}" data-bs-price="{{this.price}}" data-bs-image="{{this.image}}">
                             Update
                         </button>
-                        {{/if}}
+                        {{!-- {{/if}} --}}
                         <button type="submit" class="btn btn-success">Add to Cart</button>
-                        {{#if isAdmin}}
+                        {{!-- {{#if isAdmin}} --}}
                         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-bs-id="{{this.id}}">
                            Delete
                         </button>
-                        {{/if}}
+                        {{!-- {{/if}} --}}
                     </div>
                 </div>
             </div>
