@@ -38,7 +38,7 @@ const httpLogger = pinohttp({
 app.use(httpLogger);
 
 // Make sure errorController is last!
-const controllers = ['homeController', 'productController', 'loginController', 'signupController', 'userController', 'errorController']
+const controllers = ['homeController', 'productController', 'loginController', 'signupController', 'userController', 'contactUsController', 'aboutUsController', 'errorController']
 
 // Register routes from all controllers 
 //  (Assumes a flat directory structure and common 'routeRoot' / 'router' export)

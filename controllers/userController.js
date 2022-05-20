@@ -39,6 +39,63 @@ function createSession(id, username) {
  *                        a 500-level response if there is a system error
  */
 async function createUser(request, response) {
+  let lang = request.cookies.language;
+  let current;
+  let description;
+  let recentItems;
+  let shop;
+  let currentPromotions;
+  let title1;
+  let message1;
+  let link1;
+  let title2;
+  let message2;
+  let link2;
+  let title3;
+  let message3;
+  let link3;
+  let alertMessage200;
+  let alertMessage400;
+  let alertMessage500;
+
+  if (!lang || lang === 'en') {
+      current = 'English';
+      description = 'shop our newest cameras and more'; // default to English if not already set.
+      recentItems = 'recently viewed items'
+      shop = "shop now"
+      currentPromotions = "Current Promotions"
+      title1 = "Capture your Memories"
+      message1 = "'Photos allow us to record life's greatest moments, so they can stay in our memories forever.' - Keo Tsang"
+      link1 = "Visit Keo's Channel"
+      title2 = "Premium Camera Hardware"
+      message2 = "Get the latest cameras, lenses and more from us."
+      link2 = "Shop Now"
+      title3 = "The Meaning of Photography"
+      message3 = "'Photography means something to me. What does it mean to you?' - Peter McKinnon"
+      link3 = "Read more"
+      alertMessage200 = "Successfully created user" 
+      alertMessage400 = "Failed!! User Already Exist"
+      alertMessage500 = "Failed to add User for DataBase Connection Error"
+  } else {
+      current = "French"
+      description = 'magasinez nos caméras les plus récentes et encore';
+      featItems = 'articles récemment vus'
+      shop = "magasinez maintenant"
+      currentPromotions = "Promotions En Cours"
+      title1 = "Capturez Vos Souvenirs"
+      message1 = "'Les photos nous permettent d'enregistrer les plus grands moments de la vie, afin qu'ils puissent rester dans nos mémoires pour toujours.' - Kéo Tsang"
+      link1 = "Visitez La Chaîne De Keo"
+      title2 = "Prime Matériel De Caméra"
+      message2 = "Obtenez les derniers appareils photo, objectifs et plus encore de notre part."
+      link2 = "Magasinez Maintenant"
+      title3 = "Le Sens De La Photographie"
+      message3 = "« La photographie signifie quelque chose pour moi. Qu'est-ce que cela signifie pour vous ? » -Peter McKinnon"
+      link3 = "en savoir plus"
+      alertMessage200 = "Créé utilisateur avec succès"
+      alertMessage400 = "Erreur!! Utilisateur exist déjà"
+      alertMessage500 = "Pas possible d'ajouter l'utilisateur pour l'erreur de connexion à la base de données"
+
+  }
   try {
     const added = await model.addUser(
       request.body.username,
@@ -48,20 +105,20 @@ async function createUser(request, response) {
     );
     if (added) {
       response.render("home.hbs", {
-        alertSuccess:true ,alertMessage:"Successfully created " +request.body.username +""
+        alertSuccess:true ,alertMessage:alertMessage200
       });
       // 200 success
     } else {
       response.status("400");
       response.render("error.hbs", {
-        alertMessage: "Failed!! User Already Exist",
+        alertMessage: alertMessage400,
       });
     }
   } catch (error) {
     if (error instanceof model.DBConnectionError) {
       response.status("500");
       response.render("error.hbs", {
-        alertMessage: "Failed to add User for DataBase Connection Error",
+        alertMessage: alertMessage500,
         image:
           "https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pok%C3%A9mon_logo.svg",
         formFields: ["name", "type"],
@@ -77,7 +134,7 @@ async function createUser(request, response) {
     } else {
       response.status("500");
       response.render("error.hbs", {
-        alertMessage: "Failed to add User for  DataBase Connection Error",
+        alertMessage: alertMessage500,
         image:
           "https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pok%C3%A9mon_logo.svg",
       });
@@ -94,32 +151,93 @@ router.post("/signup", createUser);
  *                        a 500-level response if there is a system error
  */
 async function listAllUser(request, response) {
+  let lang = request.cookies.language;
+  let current;
+  let description;
+  let recentItems;
+  let shop;
+  let currentPromotions;
+  let title1;
+  let message1;
+  let link1;
+  let title2;
+  let message2;
+  let link2;
+  let title3;
+  let message3;
+  let link3;
+  let alertMessage200;
+  let alertMessage400;
+  let alertMessage500;
+
+  if (!lang || lang === 'en') {
+      current = 'English';
+      description = 'shop our newest cameras and more'; // default to English if not already set.
+      recentItems = 'recently viewed items'
+      shop = "shop now"
+      currentPromotions = "Current Promotions"
+      title1 = "Capture your Memories"
+      message1 = "'Photos allow us to record life's greatest moments, so they can stay in our memories forever.' - Keo Tsang"
+      link1 = "Visit Keo's Channel"
+      title2 = "Premium Camera Hardware"
+      message2 = "Get the latest cameras, lenses and more from us."
+      link2 = "Shop Now"
+      title3 = "The Meaning of Photography"
+      message3 = "'Photography means something to me. What does it mean to you?' - Peter McKinnon"
+      link3 = "Read more"
+      alertMessage200 = "Successfully go all users"
+      alertMessage400 = "Failed to get all users"
+      alertMessage500 = "Failed to get all users for DataBase Connection Error"
+  } else {
+      current = "French"
+      description = 'magasinez nos caméras les plus récentes et encore';
+      featItems = 'articles récemment vus'
+      shop = "magasinez maintenant"
+      currentPromotions = "Promotions En Cours"
+      title1 = "Capturez Vos Souvenirs"
+      message1 = "'Les photos nous permettent d'enregistrer les plus grands moments de la vie, afin qu'ils puissent rester dans nos mémoires pour toujours.' - Kéo Tsang"
+      link1 = "Visitez La Chaîne De Keo"
+      title2 = "Prime Matériel De Caméra"
+      message2 = "Obtenez les derniers appareils photo, objectifs et plus encore de notre part."
+      link2 = "Magasinez Maintenant"
+      title3 = "Le Sens De La Photographie"
+      message3 = "« La photographie signifie quelque chose pour moi. Qu'est-ce que cela signifie pour vous ? » -Peter McKinnon"
+      link3 = "en savoir plus"
+      alertMessage200 = "Reçu tous les utlisateurs avec succès"
+      alertMessage400 = "Pas possible de recevoir tous les utilsateurs"
+      alertMessage500 = "Pas possible d'ajouter l'utilisateur pour l'erreur de connexion à la base de données"
+
+  }
   try {
     const allUsers = await model.getAllUsers();
     if (allUsers.length > 0) {
       response.render("showUser.hbs", {
-        message: "Successfully get all user ",
+        message: alertMessage200,
         list: allUsers,
         ListAll: true,
       });
       // 200 success
     } else {
       response.status("400");
-      response.render("home.hbs", { alterMessage: "Failed to get all user" });
+      response.render("home.hbs", { alterMessage: alertMessage400, description:description, recentItems:recentItems, shop: shop, currentPromotions:currentPromotions, title1:title1, title2:title2, title3:title3, message1:message1, message2:message2, message3:message3, link1:link1, link2:link2, link3:link3
+      });
     }
   } catch (error) {
     if (error instanceof model.DBConnectionError) {
       response.status("500");
       response.render("home.hbs", {
-        alertMessage: "Failed to get all user for DataBase Connection Error",
+        alertMessage: alertMessage500, description:description, recentItems:recentItems, shop: shop, currentPromotions:currentPromotions, title1:title1, title2:title2, title3:title3, message1:message1, message2:message2, message3:message3, link1:link1, link2:link2, link3:link3
+
       });
     } else if (error instanceof model.InvalidInputError) {
       response.status("400");
-      response.render("home.hbs", { alertMessage: "Failed to get all user" });
+      response.render("home.hbs", { alertMessage:alertMessage400, description:description, recentItems:recentItems, shop: shop, currentPromotions:currentPromotions, title1:title1, title2:title2, title3:title3, message1:message1, message2:message2, message3:message3, link1:link1, link2:link2, link3:link3
+      });
     } else {
       response.status("500");
       response.render("home.hbs", {
-        alertMessage: "Failed to get all user for DataBase Connection Error",
+        alertMessage: alertMessage500, description:description, recentItems:recentItems, shop: shop, currentPromotions:currentPromotions, title1:title1, title2:title2, title3:title3, message1:message1, message2:message2, message3:message3, link1:link1, link2:link2, link3:link3
+
       });
     }
   }
@@ -135,6 +253,65 @@ router.get("/users", listAllUser);
  *                        a 500-level response if there is a system error
  */
 async function Login(request, response) {
+  let lang = request.cookies.language;
+  let current;
+  let description;
+  let recentItems;
+  let shop;
+  let currentPromotions;
+  let title1;
+  let message1;
+  let link1;
+  let title2;
+  let message2;
+  let link2;
+  let title3;
+  let message3;
+  let link3;
+  let alertMessage200;
+  let alertMessage400;
+  let alertMessage500;
+  let alertMessageLoggedIn;
+
+  if (!lang || lang === 'en') {
+      current = 'English';
+      description = 'shop our newest cameras and more'; // default to English if not already set.
+      recentItems = 'recently viewed items'
+      shop = "shop now"
+      currentPromotions = "Current Promotions"
+      title1 = "Capture your Memories"
+      message1 = "'Photos allow us to record life's greatest moments, so they can stay in our memories forever.' - Keo Tsang"
+      link1 = "Visit Keo's Channel"
+      title2 = "Premium Camera Hardware"
+      message2 = "Get the latest cameras, lenses and more from us."
+      link2 = "Shop Now"
+      title3 = "The Meaning of Photography"
+      message3 = "'Photography means something to me. What does it mean to you?' - Peter McKinnon"
+      link3 = "Read more"
+      alertMessage200 = "Successfully logged in"
+      alertMessage400 = "Failed!! User may not exist"
+      alertMessage500 = "Failed to log in for DataBase Connection Error"
+      alertMessageLoggedIn = "Already logged in"
+  } else {
+      current = "French"
+      description = 'magasinez nos caméras les plus récentes et encore';
+      featItems = 'articles récemment vus'
+      shop = "magasinez maintenant"
+      currentPromotions = "Promotions En Cours"
+      title1 = "Capturez Vos Souvenirs"
+      message1 = "'Les photos nous permettent d'enregistrer les plus grands moments de la vie, afin qu'ils puissent rester dans nos mémoires pour toujours.' - Kéo Tsang"
+      link1 = "Visitez La Chaîne De Keo"
+      title2 = "Prime Matériel De Caméra"
+      message2 = "Obtenez les derniers appareils photo, objectifs et plus encore de notre part."
+      link2 = "Magasinez Maintenant"
+      title3 = "Le Sens De La Photographie"
+      message3 = "« La photographie signifie quelque chose pour moi. Qu'est-ce que cela signifie pour vous ? » -Peter McKinnon"
+      link3 = "en savoir plus"
+      alertMessage200 = "Coonecté avec succès"
+      alertMessage400 = "Erreur!! Utilisateur exist déjà"
+      alertMessage500 = "Pas possible d'ajouter l'utilisateur pour l'erreur de connexion à la base de données"
+
+  }
   try {
 
     const authenticatedSession = authenticateUser(request);
@@ -152,36 +329,38 @@ async function Login(request, response) {
         response.cookie("sessionId", sessionId);
         response.cookie("id", userId);
         response.render("home.hbs", {
-          alertSuccess:true ,alertMessage: "Successfully logged in"
+          alertSuccess:true ,alertMessage: alertMessage200, description:description, recentItems:recentItems, shop: shop, currentPromotions:currentPromotions, title1:title1, title2:title2, title3:title3, message1:message1, message2:message2, message3:message3, link1:link1, link2:link2, link3:link3
+
         });
         // 200 success
       } else {
         response.status("400");
         response.render("error.hbs", {
-          alertMessage: "Failed user may not exist",
+          alertMessage: alertMessage400
         });
     };
     }
     else{  
       response.render("home.hbs", {
-      alertAlreadyLogged:true ,alertMessage: "Already logged in"
+      alertAlreadyLogged:true ,alertMessage: alertAlreadyLogged, description:description, recentItems:recentItems, shop: shop, currentPromotions:currentPromotions, title1:title1, title2:title2, title3:title3, message1:message1, message2:message2, message3:message3, link1:link1, link2:link2, link3:link3
+
     })}
 
   } catch (error) {
     if (error instanceof model.DBConnectionError) {
       response.status("500");
       response.render("error.hbs", {
-        alertMessage: "Failed to get user for DataBase Connection Error",
+        alertMessage: alertMessage500
       });
     } else if (error instanceof model.InvalidInputError) {
       response.status("400");
       response.render("error.hbs", {
-        alertMessage: "Failed user may not exist",
+        alertMessage: alertMessage400
       });
     } else {
       response.status("500");
       response.render("error.hbs", {
-        alertMessage: "Failed to get user for DataBase Connection Error",
+        alertMessage: alertMessage500
       });
     }
   }
@@ -197,6 +376,63 @@ router.post("/login", Login);
  *                        a 500-level response if there is a system error
  */
 async function UpdatePassword(request, response) {
+  let lang = request.cookies.language;
+  let current;
+  let description;
+  let recentItems;
+  let shop;
+  let currentPromotions;
+  let title1;
+  let message1;
+  let link1;
+  let title2;
+  let message2;
+  let link2;
+  let title3;
+  let message3;
+  let link3;
+  let alertMessage200;
+  let alertMessage400;
+  let alertMessage500;
+
+  if (!lang || lang === 'en') {
+      current = 'English';
+      description = 'shop our newest cameras and more'; // default to English if not already set.
+      recentItems = 'recently viewed items'
+      shop = "shop now"
+      currentPromotions = "Current Promotions"
+      title1 = "Capture your Memories"
+      message1 = "'Photos allow us to record life's greatest moments, so they can stay in our memories forever.' - Keo Tsang"
+      link1 = "Visit Keo's Channel"
+      title2 = "Premium Camera Hardware"
+      message2 = "Get the latest cameras, lenses and more from us."
+      link2 = "Shop Now"
+      title3 = "The Meaning of Photography"
+      message3 = "'Photography means something to me. What does it mean to you?' - Peter McKinnon"
+      link3 = "Read more"
+      alertMessage200 = "Successfully updated the user"
+      alertMessage400 = "Failed!! User may not exist"
+      alertMessage500 = "Failed to update password for DataBase Connection Error"
+  } else {
+      current = "French"
+      description = 'magasinez nos caméras les plus récentes et encore';
+      featItems = 'articles récemment vus'
+      shop = "magasinez maintenant"
+      currentPromotions = "Promotions En Cours"
+      title1 = "Capturez Vos Souvenirs"
+      message1 = "'Les photos nous permettent d'enregistrer les plus grands moments de la vie, afin qu'ils puissent rester dans nos mémoires pour toujours.' - Kéo Tsang"
+      link1 = "Visitez La Chaîne De Keo"
+      title2 = "Prime Matériel De Caméra"
+      message2 = "Obtenez les derniers appareils photo, objectifs et plus encore de notre part."
+      link2 = "Magasinez Maintenant"
+      title3 = "Le Sens De La Photographie"
+      message3 = "« La photographie signifie quelque chose pour moi. Qu'est-ce que cela signifie pour vous ? » -Peter McKinnon"
+      link3 = "en savoir plus"
+      alertMessage200 = "Mis à jout l'utilisateur avec succès"
+      alertMessage400 = "Erreur!! Utilisateur n'existe pas"
+      alertMessage500 = "Pas ppossible d'ajouter l'utilisateur pour l'erreur de connexion à la base de données"
+
+  }
   try {
     const oneUsers = await model.UpdateUserPassword(
       request.body.username,
@@ -204,7 +440,7 @@ async function UpdatePassword(request, response) {
     );
     if (oneUsers) {
       response.render("showUser.hbs", {
-        message: "Successfully update the user ",
+        message: alertMessage200,
         ListAll: false,
       });
       // 200 success
@@ -213,17 +449,17 @@ async function UpdatePassword(request, response) {
     if (error instanceof model.DBConnectionError) {
       response.status("500");
       response.render("error.hbs", {
-        alertMessage: "Failed to update user for DataBase Connection Error",
+        alertMessage: alertMessage500,
       });
     } else if (error instanceof model.InvalidInputError) {
       response.status("400");
       response.render("error.hbs", {
-        alertMessage: "Failed to update user , user may not exist",
+        alertMessage: alertMessage400,
       });
     } else {
       response.status("500");
       response.render("error.hbs", {
-        alertMessage: "Failed to update user for DataBase Connection Error",
+        alertMessage: alertMessage500,
       });
     }
   }
@@ -239,11 +475,68 @@ router.post("/newpassword", UpdatePassword);
  *                        a 500-level response if there is a system error
  */
 async function Delete(request, response) {
+  let lang = request.cookies.language;
+  let current;
+  let description;
+  let recentItems;
+  let shop;
+  let currentPromotions;
+  let title1;
+  let message1;
+  let link1;
+  let title2;
+  let message2;
+  let link2;
+  let title3;
+  let message3;
+  let link3;
+  let alertMessage200;
+  let alertMessage400;
+  let alertMessage500;
+
+  if (!lang || lang === 'en') {
+      current = 'English';
+      description = 'shop our newest cameras and more'; // default to English if not already set.
+      recentItems = 'recently viewed items'
+      shop = "shop now"
+      currentPromotions = "Current Promotions"
+      title1 = "Capture your Memories"
+      message1 = "'Photos allow us to record life's greatest moments, so they can stay in our memories forever.' - Keo Tsang"
+      link1 = "Visit Keo's Channel"
+      title2 = "Premium Camera Hardware"
+      message2 = "Get the latest cameras, lenses and more from us."
+      link2 = "Shop Now"
+      title3 = "The Meaning of Photography"
+      message3 = "'Photography means something to me. What does it mean to you?' - Peter McKinnon"
+      link3 = "Read more"
+      alertMessage200 = "Successfully deleted user"
+      alertMessage400 = "Failed to delete user may not exist"
+      alertMessage500 = "Failed to delete User for DataBase Connection Error"
+  } else {
+      current = "French"
+      description = 'magasinez nos caméras les plus récentes et encore';
+      featItems = 'articles récemment vus'
+      shop = "magasinez maintenant"
+      currentPromotions = "Promotions En Cours"
+      title1 = "Capturez Vos Souvenirs"
+      message1 = "'Les photos nous permettent d'enregistrer les plus grands moments de la vie, afin qu'ils puissent rester dans nos mémoires pour toujours.' - Kéo Tsang"
+      link1 = "Visitez La Chaîne De Keo"
+      title2 = "Prime Matériel De Caméra"
+      message2 = "Obtenez les derniers appareils photo, objectifs et plus encore de notre part."
+      link2 = "Magasinez Maintenant"
+      title3 = "Le Sens De La Photographie"
+      message3 = "« La photographie signifie quelque chose pour moi. Qu'est-ce que cela signifie pour vous ? » -Peter McKinnon"
+      link3 = "en savoir plus"
+      alertMessage200 = "Enlevé utilisateur avec succès"
+      alertMessage400 = "Pas possible d'enlever utilisateur"
+      alertMessage500 = "Impossible d'ajouter l'utilisateur pour l'erreur de connexion à la base de données"
+
+  }
   try {
     const deleteUser = await model.DeleteUser(request.body.username);
     if (deleteUser) {
       response.render("showUser.hbs", {
-        message: "Successfully " + request.body.username + " is deleted",
+        message: alertMessage200,
         ListAll: false,
       });
       // 200 success
@@ -255,17 +548,18 @@ async function Delete(request, response) {
     if (error instanceof model.DBConnectionError) {
       response.status("500");
       response.render("home.hbs", {
-        alertMessage: "Failed to delete user for DataBase Connection Error",
+        alertMessage: alertMessage500, description:description, recentItems:recentItems, shop: shop, currentPromotions:currentPromotions, title1:title1, title2:title2, title3:title3, message1:message1, message2:message2, message3:message3, link1:link1, link2:link2, link3:link3
+
       });
     } else if (error instanceof model.InvalidInputError) {
       response.status("400");
       response.render("error.hbs", {
-        alertMessage: "Failed to delete user not exist",
+        alertMessage: alertMessage400
       });
     } else {
       response.status("500");
       response.render("error.hbs", {
-        alertMessage: "Failed to delete user for DataBase Connection Error",
+        alertMessage: alertMessage500
       });
     }
   }
@@ -302,6 +596,57 @@ function authenticateUser(request) {
  * @returns 
  */
 async function Logout(request, response){
+  let lang = request.cookies.language;
+  let current;
+  let description;
+  let recentItems;
+  let shop;
+  let currentPromotions;
+  let title1;
+  let message1;
+  let link1;
+  let title2;
+  let message2;
+  let link2;
+  let title3;
+  let message3;
+  let link3;
+  let alertMessage200;
+
+  if (!lang || lang === 'en') {
+      current = 'English';
+      description = 'shop our newest cameras and more'; // default to English if not already set.
+      recentItems = 'recently viewed items'
+      shop = "shop now"
+      currentPromotions = "Current Promotions"
+      title1 = "Capture your Memories"
+      message1 = "'Photos allow us to record life's greatest moments, so they can stay in our memories forever.' - Keo Tsang"
+      link1 = "Visit Keo's Channel"
+      title2 = "Premium Camera Hardware"
+      message2 = "Get the latest cameras, lenses and more from us."
+      link2 = "Shop Now"
+      title3 = "The Meaning of Photography"
+      message3 = "'Photography means something to me. What does it mean to you?' - Peter McKinnon"
+      link3 = "Read more"
+      alertMessage200 = "Successfully logged out"
+  } else {
+      current = "French"
+      description = 'magasinez nos caméras les plus récentes et encore';
+      featItems = 'articles récemment vus'
+      shop = "magasinez maintenant"
+      currentPromotions = "Promotions En Cours"
+      title1 = "Capturez Vos Souvenirs"
+      message1 = "'Les photos nous permettent d'enregistrer les plus grands moments de la vie, afin qu'ils puissent rester dans nos mémoires pour toujours.' - Kéo Tsang"
+      link1 = "Visitez La Chaîne De Keo"
+      title2 = "Prime Matériel De Caméra"
+      message2 = "Obtenez les derniers appareils photo, objectifs et plus encore de notre part."
+      link2 = "Magasinez Maintenant"
+      title3 = "Le Sens De La Photographie"
+      message3 = "« La photographie signifie quelque chose pour moi. Qu'est-ce que cela signifie pour vous ? » -Peter McKinnon"
+      link3 = "en savoir plus"
+      alertMessage200 = "Déconnecté avec succès"
+
+  }
   const authenticatedSession = authenticateUser(request);
   if (!authenticatedSession) {
         response.redirect('/');
@@ -312,8 +657,10 @@ async function Logout(request, response){
   
   response.cookie("sessionId", "", { expires: new Date() }); // "erase" cookie by forcing it to expire.
   response.cookie("id", "", { expires: new Date() }); // "erase" cookie by forcing it to expire.
+  response.cookie("shoppingCart", "", { expires: new Date() }); // "erase" cookie by forcing it to expire.
   response.render("home.hbs", {
-    alertSuccess:true ,alertMessage: "Successfully log out"
+    alertSuccess:true ,alertMessage: alertMessage200,  description:description, recentItems:recentItems, shop: shop, currentPromotions:currentPromotions, title1:title1, title2:title2, title3:title3, message1:message1, message2:message2, message3:message3, link1:link1, link2:link2, link3:link3
+
   });
 };
 router.get("/logout", Logout);

@@ -27,6 +27,7 @@ let list = [];
     return out;
 });
 
+
 // products array to be passed in to the view for rendering
 let products = [];
 
@@ -41,6 +42,7 @@ async function createProduct(req, res){
     let productType;
     let productId;
     let update;
+let add;
     let deleteItem;
     let addCart;
     let enterInfo;
@@ -61,6 +63,7 @@ async function createProduct(req, res){
         close = 'Close';
         name = 'Name'
         price = 'Price'
+        add = 'Add'
 
     } else {
         current = "French"
@@ -74,8 +77,10 @@ async function createProduct(req, res){
         close = 'fermer'
         name = 'Nom'
         price = 'prix'
+        add = 'Ajouter'
     }
 
+    let isAdmin = await adminLoggedIn(req, res);
     const renderItems = {
         products: products,
         productId: productId,
@@ -87,13 +92,16 @@ async function createProduct(req, res){
         submit:submit,
         close: close,
         name: name,
-        price: price
+        price: price,
+        add: add,
+        'isAdmin': isAdmin
     }
     try{
         const added = await sql.addProduct(req.body.name, req.body.type, req.body.price, req.body.image);
         if(added){
             populateProducts();
             res.render('products.hbs', renderItems);
+            res.redirect('/products');
         }
     } catch(error){
         logger.error(error);
@@ -107,12 +115,10 @@ async function createProduct(req, res){
  * @param {*} res The response object.
  */
 async function updateProduct(req, res){
-    const renderItems = {
-        products: products
-    }
     try{
         const updated = await sql.updateProduct(req.body.id, req.body.name, req.body.type, req.body.price, req.body.image);
         if(updated){
+            logger.info('Product updated successfully');
             res.redirect('/products');
         }            
     } catch(error){
@@ -127,12 +133,10 @@ async function updateProduct(req, res){
  * @param {*} res The response object.
  */
 async function deleteProduct(req, res){
-    const renderItems = {
-        products: products
-    }
     try{
         const deleted = await sql.deleteProduct(req.body.id);
         if(deleted){
+            logger.info('Product deleted');
             res.redirect('/products');
         }
     }catch(error){
@@ -142,18 +146,24 @@ async function deleteProduct(req, res){
 
 }
 
+async function adminLoggedIn(req, res){
+    if(req.cookies['id'] == '1')  // if id is 1 that means logged in as admin
+        return true;
+    else return false;
+}
+
 /**
  * Handles the /products endpoint. Shows user all products from the products page.
  * @param {*} req The request object.
  * @param {*} res The response object.
  */
 async function showProducts(req, res){
-    products = [];
     let lang = req.cookies.language;
     let current;
     let productType;
     let productId;
     let update;
+    let add;
     let deleteItem;
     let addCart;
     let enterInfo;
@@ -174,6 +184,7 @@ async function showProducts(req, res){
         close = 'Close';
         name = 'Name'
         price = 'Price'
+        add = 'Add'
 
     } else {
         current = "French"
@@ -187,8 +198,10 @@ async function showProducts(req, res){
         close = 'fermer'
         name = 'Nom'
         price = 'prix'
+        add = 'Ajouter'
     }
-
+    products = [];
+    let isAdmin = await adminLoggedIn(req, res);
     const renderItems = {
         products: products,
         productId: productId,
@@ -200,9 +213,10 @@ async function showProducts(req, res){
         submit:submit,
         close: close,
         name: name,
-        price: price
+        price: price,
+        add: add,
+        'isAdmin': isAdmin
     }
-
     try{
         const product = await sql.getProducts();
         for(let i = 0; i < product[0].length; i++){
@@ -220,9 +234,6 @@ async function showProducts(req, res){
 
 async function populateProducts(){
     products = [];
-    const renderItems = {
-        products: products
-    }
     try{
         const product = await sql.getProducts();
         for(let i = 0; i < product[0].length; i++){
@@ -271,10 +282,25 @@ async function showCartPage(req, res){
         yourCart: yourCart,
         confirm: confirm,
         remove: remove
-
     }
     res.render("cart.hbs", renderItems);
 }
+
+let recentlyViewedItems = [];
+async function addToRecentlyViewedItems(req, res){
+    if(req.body.addProduct && !containsObject({name: req.body.name, image: req.body.image}, recentlyViewedItems)){
+        if(recentlyViewedItems.length > 2){ // if there are more than 3 products in recently viewed, 
+            recentlyViewedItems = recentlyViewedItems.reverse() // reverse the array to get first item
+            recentlyViewedItems.pop(); // pop the item from the array
+            recentlyViewedItems.push({name: req.body.name, image: req.body.image});
+        }else{
+            recentlyViewedItems.push({name: req.body.name, image: req.body.image});
+        }
+        
+    }
+    res.cookie("recentlyViewed", recentlyViewedItems);
+}
+
 
 
 /**
@@ -289,7 +315,7 @@ async function showCart(req, res){
     let confirm;
     let remove;
     let alertMessage;
-
+ 
     if (!lang || lang === 'en') {
         current = 'English';
         yourCart = 'YOUR CART'
@@ -305,12 +331,13 @@ async function showCart(req, res){
         alertMessage = 'Vous devrez ëtre connecté pour ajouter au panier'
     }
 
+    addToRecentlyViewedItems(req, res);     // add to recentlyViewedItems when adding to cart
+
    if(!req.cookies['sessionId'] || req.cookies == null){
-        res.status("400");
-        res.render("error.hbs", {alertMessage: alertMessage})
+       res.status(400);
+        res.render("error.hbs", {alertMessage: "You must be logged in to add to cart."})
     }
     else{
-
         if(req.body.addProduct){
             list.push({name: req.body.name, type: req.body.type, price: req.body.price});
         }
@@ -321,9 +348,7 @@ async function showCart(req, res){
             yourCart: yourCart,
             confirm: confirm,
             remove: remove
-    
         }
-
         res.render("cart.hbs", renderItems);
     }
 }
@@ -352,7 +377,6 @@ async function deleteItemFromCart(req, res){
         shoppingMessage = 'Continuez à Magasiner'
     }
 
-    
     let name = req.body.name
     let index = list.findIndex(item => { return item.name === name; });
     list.splice(index, 1);
@@ -373,12 +397,12 @@ async function deleteItemFromCart(req, res){
  */
 async function submitCart(req, res){
     try{
+        
         let lang = req.cookies.language;
         let current;
         let orderConfirmed;
         let shoppingMessage;
         let backToHome;
-
         if (!lang || lang === 'en') {
             current = 'English';
             orderConfirmed = 'YOUR ORDER HAS BEEN CONFIRMED. THANK YOU FOR SHOPPING!'
@@ -390,7 +414,7 @@ async function submitCart(req, res){
             shoppingMessage = 'Continuez à Magasiner'
             backToHome = "Retournez à la page d'accueil"
         }
-    
+
         let cartList = req.cookies.shoppingCart;
         let userId = req.cookies.id;
         await sql.createOrder(cartList, userId);
@@ -419,6 +443,7 @@ module.exports = {
     updateProduct,
     showCart,
     deleteItemFromCart,
+    addToRecentlyViewedItems,
     submitCart,
     router,
     routeRoot
