@@ -10,7 +10,7 @@
             <input type="hidden" name="image" value="{{this.image}}">
             <div class="card" style="width: 18rem;">
                 {{#if ../../isAdmin}}
-                <p>product type: {{this.type}} product id: {{this.id}}</p>
+                <p>{{../../productType}} {{this.type}} {{../../productId}} {{this.id}}</p>
                 {{/if}}
                 <img class="card-img-top" src={{this.image}} alt="Card image cap" onerror="this.src= 'images/logo_wide_white.png'">
                 <div class="card-body">
@@ -19,13 +19,13 @@
                     <div class="btn-group mr-2" role="group" aria-label="groupedbutton">
                         {{#if ../../isAdmin}}
                         <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#updateModal" data-bs-id="{{this.id}}" data-bs-name="{{this.name}}" data-bs-type="{{this.type}}" data-bs-price="{{this.price}}" data-bs-image="{{this.image}}">
-                            Update
+                            {{../../update}}
                         </button>
                         {{/if}}
-                        <button type="submit" class="btn btn-success">Add to Cart</button>
+                        <button type="submit" class="btn btn-success">{{../../addCart}}</button>
                         {{#if ../../isAdmin}}
                         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-bs-id="{{this.id}}">
-                           Delete
+                           {{../../deleteItem}}
                         </button>
                         {{/if}}
                     </div>
@@ -43,22 +43,22 @@
       <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="deleteModalLabel" style="color: #151414" >Delete Product ID: </h5>
+        <h5 class="modal-title" id="deleteModalLabel" style="color: #151414" >{{deleteItem}} {{productId}}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body" style="color: #151414">
         <!-- Form for delete goes here -->
         <form action="/products/delete" method="post" role="form" enctype="application/x-www-form-urlencoded">
-            <legend class="darktxt">Enter Product info</legend>
+            <legend class="darktxt">{{enterInfo}}</legend>
             
             <label class="darktxt" for="id">Id: </label><br>
             <input class="darktxt" type="number" id="deleteId" name="id" value="" readonly="true"><br>
 
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-primary">{{submit}}</button>
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{close}}</button>
       </div>
     </div>
   </div>
@@ -70,35 +70,35 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="updateModalLabel" style="color: #151414" >Update Product ID: </h5>
+        <h5 class="modal-title" id="updateModalLabel" style="color: #151414" >{{update}} {{productId}}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body" style="color: #151414">
         <!-- Form for update goes here -->
         <form action="/products/update" method="post" role="form" enctype="application/x-www-form-urlencoded">
-            <legend class="darktxt">Enter Product info</legend>
+            <legend class="darktxt">{{enterInfo}}</legend>
             
             <label class="darktxt" for="id">Id: </label><br>
             <input class="darktxt" type="number" id="modalId" name="id" value="" readonly="true"><br>
 
-            <label class="darktxt" for="name">Name:</label><br>
+            <label class="darktxt" for="name">{{name}}:</label><br>
             <input class="darktxt" type="text" id="modalName" name="name" value=""><br>
 
             <label class="darktxt" for="type">type:</label><br>
             <input class="darktxt" type="text" id="modalType" name="type"><br>
 
-            <label class="darktxt" for="price">Price:</label><br>
+            <label class="darktxt" for="price">{{price}}:</label><br>
             <input class="darktxt" type="text" id="modalPrice" name="price"><br>
 
 
             <label class="darktxt" for="image">Image:</label><br>
             <input class="darktxt" type="text" id="modalImage" name="image"><br>
 
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-primary">{{submit}}</button>
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{close}}</button>
       </div>
     </div>
   </div>
@@ -111,36 +111,36 @@
   </button>
 {{/if}}
 
-  <!-- Update -->
+  <!-- add -->
 <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="addModalLabel" style="color: #151414" >Add Product ID: </h5>
+        <h5 class="modal-title" id="addModalLabel" style="color: #151414" >{{add}} {{productId}} </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body" style="color: #151414">
         <!-- Form for add goes here -->
         <form action="/products" method="post" role ="form" enctype="application/x-www-form-urlencoded">
-        <legend class="darktxt">Enter Product info</legend>
+        <legend class="darktxt">{{enterInfo}}</legend>
 
-        <label class="darktxt" for="name">Name:</label><br>
+        <label class="darktxt" for="name">{{name}}:</label><br>
         <input class="darktxt" type="text" id="name" name="name"><br>
 
         <label class="darktxt" for="type">type:</label><br>
         <input class="darktxt" type="text" id="type" name="type"><br>
 
-        <label class="darktxt" for="price">Price:</label><br>
+        <label class="darktxt" for="price">{{price}}:</label><br>
         <input class="darktxt" type="text" id="price" name="price"><br>
 
         <label class="darktxt" for="image">Image URL:</label><br>
         <input class="darktxt" type="text" id="image" name="image"><br>
 
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="btn btn-primary">{{submit}}</button>
     </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{close}}</button>
       </div>
     </div>
   </div>

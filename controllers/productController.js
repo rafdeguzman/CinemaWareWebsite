@@ -37,9 +37,63 @@ let products = [];
  * @param {*} res The response object.
  */
 async function createProduct(req, res){
+    let lang = req.cookies.language;
+    let current;
+    let productType;
+    let productId;
+    let update;
+let add;
+    let deleteItem;
+    let addCart;
+    let enterInfo;
+    let submit;
+    let close;
+    let name;
+    let price;
+
+    if (!lang || lang === 'en') {
+        current = 'English';
+        productId = 'Product Id: ';
+        productType = 'Product type: ';
+        update = 'update';
+        deleteItem = 'delete';
+        addCart = 'Add to Cart';
+        enterInfo = 'Enter Product info';
+        submit = 'Submit';
+        close = 'Close';
+        name = 'Name'
+        price = 'Price'
+        add = 'Add'
+
+    } else {
+        current = "French"
+        productId = 'Id du produit: ';
+        productType = 'type de produit: ';
+        update = 'mettre à jour';
+        deleteItem = 'supprimer';
+        addCart = 'Ajouter au panier';
+        enterInfo = 'Entrez Info du Produit';
+        submit = 'Soumettre';
+        close = 'fermer'
+        name = 'Nom'
+        price = 'prix'
+        add = 'Ajouter'
+    }
+
     let isAdmin = await adminLoggedIn(req, res);
     const renderItems = {
         products: products,
+        productId: productId,
+        productType: productType,
+        update: update,
+        deleteItem: deleteItem,
+        addCart: addCart,
+        enterInfo: enterInfo,
+        submit:submit,
+        close: close,
+        name: name,
+        price: price,
+        add: add,
         'isAdmin': isAdmin
     }
     try{
@@ -104,10 +158,63 @@ async function adminLoggedIn(req, res){
  * @param {*} res The response object.
  */
 async function showProducts(req, res){
+    let lang = req.cookies.language;
+    let current;
+    let productType;
+    let productId;
+    let update;
+    let add;
+    let deleteItem;
+    let addCart;
+    let enterInfo;
+    let submit;
+    let close;
+    let name;
+    let price;
+
+    if (!lang || lang === 'en') {
+        current = 'English';
+        productId = 'Product Id: ';
+        productType = 'Product type: ';
+        update = 'update';
+        deleteItem = 'delete';
+        addCart = 'Add to Cart';
+        enterInfo = 'Enter Product info';
+        submit = 'Submit';
+        close = 'Close';
+        name = 'Name'
+        price = 'Price'
+        add = 'Add'
+
+    } else {
+        current = "French"
+        productId = 'Id du produit: ';
+        productType = 'type de produit: ';
+        update = 'mettre à jour';
+        deleteItem = 'supprimer';
+        addCart = 'Ajouter au panier';
+        enterInfo = 'Entrez Info du Produit';
+        submit = 'Soumettre';
+        close = 'fermer'
+        name = 'Nom'
+        price = 'prix'
+        add = 'Ajouter'
+    }
     products = [];
     let isAdmin = await adminLoggedIn(req, res);
     const renderItems = {
         products: products,
+        productId: productId,
+        productType: productType,
+        update: update,
+        deleteItem: deleteItem,
+        addCart: addCart,
+        enterInfo: enterInfo,
+        submit:submit,
+        close: close,
+        name: name,
+        price: price,
+        add: add,
         'isAdmin': isAdmin
     }
     try{
@@ -151,8 +258,30 @@ function containsObject(obj, list) {
 }
 
 async function showCartPage(req, res){
+    let lang = req.cookies.language;
+    let current;
+    let yourCart;
+    let confirm;
+    let remove;
+
+    if (!lang || lang === 'en') {
+        current = 'English';
+        yourCart = 'YOUR CART'
+        confirm = 'Confirm Purchase'
+        remove = 'Remove Item from Cart'
+
+    } else {
+        current = "French"
+        yourCart = 'VOTRE PANIER'
+        confirm = 'confirmer votre achat'
+        remove = 'Enlever produit du panier'
+    }
+
     const renderItems = {
         products: list,
+        yourCart: yourCart,
+        confirm: confirm,
+        remove: remove
     }
     res.render("cart.hbs", renderItems);
 }
@@ -180,10 +309,32 @@ async function addToRecentlyViewedItems(req, res){
  * @param {*} res The response object.
  */
 async function showCart(req, res){
+    let lang = req.cookies.language;
+    let current;
+    let yourCart;
+    let confirm;
+    let remove;
+    let alertMessage;
  
+    if (!lang || lang === 'en') {
+        current = 'English';
+        yourCart = 'YOUR CART'
+        confirm = 'Confirm Purchase'
+        remove = 'Remove Item from Cart'
+        alertMessage = 'You must be logged in to add to cart.'
+
+    } else {
+        current = "French"
+        yourCart = 'VOTRE PANIER'
+        confirm = 'confirmer votre achat'
+        remove = 'Enlever produit du panier'
+        alertMessage = 'Vous devrez ëtre connecté pour ajouter au panier'
+    }
+
     addToRecentlyViewedItems(req, res);     // add to recentlyViewedItems when adding to cart
 
    if(!req.cookies['sessionId'] || req.cookies == null){
+       res.status(400);
         res.render("error.hbs", {alertMessage: "You must be logged in to add to cart."})
     }
     else{
@@ -194,6 +345,9 @@ async function showCart(req, res){
     
         const renderItems = {
             products: list,
+            yourCart: yourCart,
+            confirm: confirm,
+            remove: remove
         }
         res.render("cart.hbs", renderItems);
     }
@@ -205,13 +359,33 @@ async function showCart(req, res){
  * @param {*} res The response object.
  */
 async function deleteItemFromCart(req, res){
-    
+    let lang = req.cookies.language;
+    let current;
+    let deleteMessage;
+    let backTocart;
+    let shoppingMessage;
+
+    if (!lang || lang === 'en') {
+        current = 'English';
+        deleteMessage = 'has been deleted from your cart!'
+        backTocart = 'Come Back To Cart'
+        shoppingMessage = 'Continue Shopping'
+    } else {
+        current = "French"
+        deleteMessage = 'a été enlevé de votre panier!'
+        backTocart = 'Revenez au panier'
+        shoppingMessage = 'Continuez à Magasiner'
+    }
+
     let name = req.body.name
     let index = list.findIndex(item => { return item.name === name; });
     list.splice(index, 1);
 
     let renderItems = {
-        name: name
+        name: name,
+        deleteMessage: deleteMessage,
+        backTocart: backTocart,
+        shoppingMessage: shoppingMessage
     }
     res.render("removeCartItemSuccess.hbs", renderItems);
 }
@@ -223,13 +397,31 @@ async function deleteItemFromCart(req, res){
  */
 async function submitCart(req, res){
     try{
+        
+        let lang = req.cookies.language;
+        let current;
+        let orderConfirmed;
+        let shoppingMessage;
+        let backToHome;
+        if (!lang || lang === 'en') {
+            current = 'English';
+            orderConfirmed = 'YOUR ORDER HAS BEEN CONFIRMED. THANK YOU FOR SHOPPING!'
+            shoppingMessage = 'Continue Shopping'
+            backToHome = 'Go Back to Home Page'
+        } else {
+            current = "French"
+            orderConfirmed = 'VOTRE COMMANDE A ÉTÉ CONFIRMÉE. MERCI POUR MAGASINER!';
+            shoppingMessage = 'Continuez à Magasiner'
+            backToHome = "Retournez à la page d'accueil"
+        }
+
         let cartList = req.cookies.shoppingCart;
         let userId = req.cookies.id;
         await sql.createOrder(cartList, userId);
         list = [];
         res.cookie("shoppingCart", null, {expires: new Date(Date.now())});
 
-        res.render('submitCart.hbs', null)
+        res.render('submitCart.hbs', {orderConfirmed:orderConfirmed, shoppingMessage:shoppingMessage, backToHome:backToHome})
     } catch (e) {
         logger.info(e);
         throw new sql.DBConnectionError();

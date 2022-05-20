@@ -1,3 +1,12 @@
+<form class="darktxt" action="/language" method="POST" role="form">
+<legend>Language preference</legend>
+  <select class="darktxt" name="language" onchange="this.form.submit()">
+    <option class="darktxt" value="" selected="selected" hidden="hidden">{{current}}</option>
+    <option class="darktxt" value="en">English</option>
+    <option class="darktxt" value="fr">French</option>
+  </select>
+</form>
+
 {{#if alertSuccess}}
 <div class="alert alert-success" role="alert">
   {{alertMessage}}
@@ -12,9 +21,9 @@
 <div class="hero-image">
   <div class="hero-text">
     <h1>CinemaWare</h1>
-    <p>shop our newest cameras and more</p>
+    <p>{{description}}</p>
     <form action="/products" method="get">
-      <input type="submit" class="btn btn-dark" id="shop-now" value="shop now">
+      <input type="submit" class="btn btn-dark" id="shop-now" value={{shop}}>
     </form>
   </div>
 </div>
@@ -32,7 +41,7 @@
 </div>
 
 <div class="row">
-  <h2 id="featured-items">Recently Viewed Items</h2>
+  <h2 id="featured-items">{{featItems}}</h2>
   <p></p>
   {{#grouped_each 3 recentlyViewed}}
     <div class="row">

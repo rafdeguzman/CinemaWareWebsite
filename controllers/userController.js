@@ -52,13 +52,14 @@ async function createUser(request, response) {
       });
       // 200 success
     } else {
+      response.status("400");
       response.render("error.hbs", {
         alertMessage: "Failed!! User Already Exist",
       });
     }
   } catch (error) {
     if (error instanceof model.DBConnectionError) {
-      //response.status("500");
+      response.status("500");
       response.render("error.hbs", {
         alertMessage: "Failed to add User for DataBase Connection Error",
         image:
@@ -66,7 +67,7 @@ async function createUser(request, response) {
         formFields: ["name", "type"],
       });
     } else if (error instanceof model.InvalidInputError) {
-      //response.status("400");
+      response.status("400");
       response.render("error.hbs", {
         alertMessage: error.message,
         image:
@@ -74,7 +75,7 @@ async function createUser(request, response) {
         formFields: ["name", "type"],
       });
     } else {
-      //response.status("500");
+      response.status("500");
       response.render("error.hbs", {
         alertMessage: "Failed to add User for  DataBase Connection Error",
         image:
@@ -103,19 +104,20 @@ async function listAllUser(request, response) {
       });
       // 200 success
     } else {
+      response.status("400");
       response.render("home.hbs", { alterMessage: "Failed to get all user" });
     }
   } catch (error) {
     if (error instanceof model.DBConnectionError) {
-      //response.status("500");
+      response.status("500");
       response.render("home.hbs", {
         alertMessage: "Failed to get all user for DataBase Connection Error",
       });
     } else if (error instanceof model.InvalidInputError) {
-      //response.status("400");
+      response.status("400");
       response.render("home.hbs", { alertMessage: "Failed to get all user" });
     } else {
-      //response.status("500");
+      response.status("500");
       response.render("home.hbs", {
         alertMessage: "Failed to get all user for DataBase Connection Error",
       });
@@ -154,6 +156,7 @@ async function Login(request, response) {
         });
         // 200 success
       } else {
+        response.status("400");
         response.render("error.hbs", {
           alertMessage: "Failed user may not exist",
         });
@@ -166,17 +169,17 @@ async function Login(request, response) {
 
   } catch (error) {
     if (error instanceof model.DBConnectionError) {
-      //response.status("500");
+      response.status("500");
       response.render("error.hbs", {
         alertMessage: "Failed to get user for DataBase Connection Error",
       });
     } else if (error instanceof model.InvalidInputError) {
-      //response.status("400");
+      response.status("400");
       response.render("error.hbs", {
         alertMessage: "Failed user may not exist",
       });
     } else {
-      //response.status("500");
+      response.status("500");
       response.render("error.hbs", {
         alertMessage: "Failed to get user for DataBase Connection Error",
       });
@@ -208,17 +211,17 @@ async function UpdatePassword(request, response) {
     }
   } catch (error) {
     if (error instanceof model.DBConnectionError) {
-      //response.status("500");
+      response.status("500");
       response.render("error.hbs", {
         alertMessage: "Failed to update user for DataBase Connection Error",
       });
     } else if (error instanceof model.InvalidInputError) {
-      //response.status("400");
+      response.status("400");
       response.render("error.hbs", {
         alertMessage: "Failed to update user , user may not exist",
       });
     } else {
-      //response.status("500");
+      response.status("500");
       response.render("error.hbs", {
         alertMessage: "Failed to update user for DataBase Connection Error",
       });
@@ -250,17 +253,17 @@ async function Delete(request, response) {
     // }
   } catch (error) {
     if (error instanceof model.DBConnectionError) {
-      //response.status("500");
+      response.status("500");
       response.render("home.hbs", {
         alertMessage: "Failed to delete user for DataBase Connection Error",
       });
     } else if (error instanceof model.InvalidInputError) {
-      //response.status("400");
+      response.status("400");
       response.render("error.hbs", {
         alertMessage: "Failed to delete user not exist",
       });
     } else {
-      //response.status("500");
+      response.status("500");
       response.render("error.hbs", {
         alertMessage: "Failed to delete user for DataBase Connection Error",
       });
