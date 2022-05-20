@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: controllers/homeController.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: controllers/homeController.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const express = require('express');
+const router = express.Router();
+const { header } = require('express/lib/request');
+const routeRoot = '/';
+
+/**
+ * Handles the / endpoint. Show the user the home page.
+ * @param {*} req The request object.
+ * @param {*} res The response object.
+ */
+async function showHome(req, res){
+    let lang = req.cookies.language;
+    let current;
+    let description;
+    let recentItems;
+    let shop;
+    let currentPromotions;
+    let title1;
+    let message1;
+    let link1;
+    let title2;
+    let message2;
+    let link2;
+    let title3;
+    let message3;
+    let link3;
+
+    if (!lang || lang === 'en') {
+        current = 'English';
+        description = 'shop our newest cameras and more'; // default to English if not already set.
+        recentItems = 'recently viewed items'
+        shop = "shop now"
+        currentPromotions = "Current Promotions"
+        title1 = "Capture your Memories"
+        message1 = "'Photos allow us to record life's greatest moments, so they can stay in our memories forever.' - Keo Tsang"
+        link1 = "Visit Keo's Channel"
+        title2 = "Premium Camera Hardware"
+        message2 = "Get the latest cameras, lenses and more from us."
+        link2 = "Shop Now"
+        title3 = "The Meaning of Photography"
+        message3 = "'Photography means something to me. What does it mean to you?' - Peter McKinnon"
+        link3 = "Read more"
+    } else {
+        current = "French"
+        description = 'magasinez nos caméras les plus récentes et encore';
+        recentItems = 'articles récemment vus'
+        shop = "magasinez maintenant"
+        currentPromotions = "Promotions En Cours"
+        title1 = "Capturez Vos Souvenirs"
+        message1 = "'Les photos nous permettent d'enregistrer les plus grands moments de la vie, afin qu'ils puissent rester dans nos mémoires pour toujours.' - Kéo Tsang"
+        link1 = "Visitez La Chaîne De Keo"
+        title2 = "Prime Matériel De Caméra"
+        message2 = "Obtenez les derniers appareils photo, objectifs et plus encore de notre part."
+        link2 = "Magasinez Maintenant"
+        title3 = "Le Sens De La Photographie"
+        message3 = "« La photographie signifie quelque chose pour moi. Qu'est-ce que cela signifie pour vous ? » -Peter McKinnon"
+        link3 = "en savoir plus"
+    }
+
+    const renderItems = {
+        recentlyViewed: req.cookies['recentlyViewed'],
+        description:description, recentItems:recentItems, shop: shop, currentPromotions:currentPromotions, title1:title1, title2:title2, title3:title3, message1:message1, message2:message2, message3:message3, link1:link1, link2:link2, link3:link3
+    };
+    res.render("home.hbs", renderItems)
+}
+
+router.get('/', showHome);
+
+router.post('/language', (request, response) => {
+    const lang = request.body.language;
+    if (lang) {
+        response.cookie('language', lang);
+    }
+    response.redirect("/");
+});
+
+
+
+module.exports = {
+    showHome,
+    router,
+    routeRoot
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="DBConnectionError.html">DBConnectionError</a></li><li><a href="InvalidInputError.html">InvalidInputError</a></li><li><a href="Session.html">Session</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addProduct">addProduct</a></li><li><a href="global.html#addUser">addUser</a></li><li><a href="global.html#authenticateUser">authenticateUser</a></li><li><a href="global.html#createOrder">createOrder</a></li><li><a href="global.html#createProduct">createProduct</a></li><li><a href="global.html#createProductData">createProductData</a></li><li><a href="global.html#createSession">createSession</a></li><li><a href="global.html#createUser">createUser</a></li><li><a href="global.html#Delete">Delete</a></li><li><a href="global.html#deleteAllItemFromCart">deleteAllItemFromCart</a></li><li><a href="global.html#deleteItemFromCart">deleteItemFromCart</a></li><li><a href="global.html#deleteProduct">deleteProduct</a></li><li><a href="global.html#DeleteUser">DeleteUser</a></li><li><a href="global.html#findProductWithId">findProductWithId</a></li><li><a href="global.html#findProductWithName">findProductWithName</a></li><li><a href="global.html#generateLoginPage">generateLoginPage</a></li><li><a href="global.html#getAllUsers">getAllUsers</a></li><li><a href="global.html#getConnection">getConnection</a></li><li><a href="global.html#getProducts">getProducts</a></li><li><a href="global.html#getUser">getUser</a></li><li><a href="global.html#handleError">handleError</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#isUserFound">isUserFound</a></li><li><a href="global.html#isValidNames">isValidNames</a></li><li><a href="global.html#isValidPassword">isValidPassword</a></li><li><a href="global.html#listAllUser">listAllUser</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#Logout">Logout</a></li><li><a href="global.html#showAboutUs">showAboutUs</a></li><li><a href="global.html#showCart">showCart</a></li><li><a href="global.html#showContactUs">showContactUs</a></li><li><a href="global.html#showHome">showHome</a></li><li><a href="global.html#showProducts">showProducts</a></li><li><a href="global.html#showSignUp">showSignUp</a></li><li><a href="global.html#submitCart">submitCart</a></li><li><a href="global.html#UpdatePassword">UpdatePassword</a></li><li><a href="global.html#updateProduct">updateProduct</a></li><li><a href="global.html#UpdateUserPassword">UpdateUserPassword</a></li><li><a href="global.html#validateProduct">validateProduct</a></li><li><a href="global.html#validateUsername">validateUsername</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Fri May 20 2022 12:49:16 GMT-0400 (Eastern Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

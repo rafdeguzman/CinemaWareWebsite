@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "test": "jest --verbose ./tests",
-    "start": "node server.js"
+    "start": "node server.js",
+    "doc": "jsdoc -c jsdoc.json"
   },
   "repository": {
     "type": "git",
@@ -33,5 +34,8 @@
     "supertest": "^6.2.3",
     "uuid": "^8.3.2",
     "validator": "^13.7.0"
+  },
+  "devDependencies": {
+    "jsdoc": "^3.6.10"
   }
 }
