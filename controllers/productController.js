@@ -27,6 +27,7 @@ let list = [];
     return out;
 });
 
+
 // products array to be passed in to the view for rendering
 let products = [];
 
@@ -36,8 +37,10 @@ let products = [];
  * @param {*} res The response object.
  */
 async function createProduct(req, res){
+    let isAdmin = await adminLoggedIn(req, res);
     const renderItems = {
-        products: products
+        products: products,
+        'isAdmin': isAdmin
     }
     try{
         const added = await sql.addProduct(req.body.name, req.body.type, req.body.price, req.body.image);
@@ -57,12 +60,10 @@ async function createProduct(req, res){
  * @param {*} res The response object.
  */
 async function updateProduct(req, res){
-    const renderItems = {
-        products: products
-    }
     try{
         const updated = await sql.updateProduct(req.body.id, req.body.name, req.body.type, req.body.price, req.body.image);
         if(updated){
+            logger.info('Product updated successfully');
             res.redirect('/products');
         }            
     } catch(error){
@@ -77,12 +78,10 @@ async function updateProduct(req, res){
  * @param {*} res The response object.
  */
 async function deleteProduct(req, res){
-    const renderItems = {
-        products: products
-    }
     try{
         const deleted = await sql.deleteProduct(req.body.id);
         if(deleted){
+            logger.info('Product deleted');
             res.redirect('/products');
         }
     }catch(error){
@@ -92,6 +91,14 @@ async function deleteProduct(req, res){
 
 }
 
+async function adminLoggedIn(req, res){
+    if(req.cookies['sessionId'])  // if id is 1 that means logged in as admin
+        return true;
+    else return false;
+}
+
+
+
 /**
  * Handles the /products endpoint. Shows user all products from the products page.
  * @param {*} req The request object.
@@ -99,8 +106,10 @@ async function deleteProduct(req, res){
  */
 async function showProducts(req, res){
     products = [];
+    let isAdmin = await adminLoggedIn(req, res);
     const renderItems = {
-        products: products
+        products: products,
+        'isAdmin': isAdmin
     }
     try{
         const product = await sql.getProducts();
@@ -119,9 +128,6 @@ async function showProducts(req, res){
 
 async function populateProducts(){
     products = [];
-    const renderItems = {
-        products: products
-    }
     try{
         const product = await sql.getProducts();
         for(let i = 0; i < product[0].length; i++){
