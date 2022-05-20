@@ -263,6 +263,12 @@ async function showCartPage(req, res){
     let yourCart;
     let confirm;
     let remove;
+    let submitCartbtn;
+
+    if(req.cookies['sessionId']){
+        submitCartbtn = true
+     }
+
     if (!lang || lang === 'en') {
         current = 'English';
         yourCart = 'YOUR CART'
@@ -280,7 +286,8 @@ async function showCartPage(req, res){
         products: list,
         yourCart: yourCart,
         confirm: confirm,
-        remove: remove
+        remove: remove,
+        submitCartbtn:submitCartbtn
     }
     res.render("cart.hbs", renderItems);
 }
