@@ -1,5 +1,5 @@
 <body>
-    <h1>YOUR CART</h1>
+    <h1>{{yourCart}}</h1>
     <div id="cart">
         {{#each products}}
         <div class="cartItem">
@@ -9,11 +9,11 @@
             <form action="/cart/remove" method="post" class="removeFromCart">
                 <input type="hidden" name="_method" value="DELETE">
                 <input type="hidden" name="name" value="{{this.name}}">
-                <input type="submit" class="btn btn-primary" value="Remove Item from Cart">
+                <input type="submit" class="btn btn-primary" value="{{../remove}}">
             </form>
         </div>
         {{/each}}
         
     </div>
-    <a href="/cart/buy" id="submitCart" class="btn btn-primary">Confirm Purchase</a>
+    <a href="/cart/buy" id="submitCart" class="btn btn-primary">{{confirm}}</a>
 </body>
