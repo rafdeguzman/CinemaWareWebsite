@@ -260,6 +260,10 @@ async function showProducts(req, res){
     res.render('products.hbs', renderItems)
 }
 
+
+/**
+ * Populates the products array retrieving all the products from the product model. 
+ */
 async function populateProducts(){
     products = [];
     try{
@@ -275,6 +279,12 @@ async function populateProducts(){
     }
 }
 
+/**
+ * Checks if the object exists in the list
+ * @param {*} obj 
+ * @param {*} list 
+ * @returns true if found, false otherwise.
+ */
 function containsObject(obj, list) {
     var i;
     for (i = 0; i &lt; list.length; i++) {
@@ -285,12 +295,23 @@ function containsObject(obj, list) {
     return false;
 }
 
+/**
+ * Shows the cart page with variables for language.
+ * @param {*} req 
+ * @param {*} res 
+ */
 async function showCartPage(req, res){
     let lang = req.cookies.language;
     let current;
     let yourCart;
     let confirm;
     let remove;
+    let submitCartbtn;
+
+    if(req.cookies['sessionId']){
+        submitCartbtn = true
+     }
+
     if (!lang || lang === 'en') {
         current = 'English';
         yourCart = 'YOUR CART'
@@ -308,12 +329,19 @@ async function showCartPage(req, res){
         products: list,
         yourCart: yourCart,
         confirm: confirm,
-        remove: remove
+        remove: remove,
+        submitCartbtn:submitCartbtn
     }
     res.render("cart.hbs", renderItems);
 }
 
 let recentlyViewedItems = [];
+
+/**
+ * Adds an item to the recently viewed items list. It is then stored as a cookie to be retrieved in the home page.
+ * @param {*} req 
+ * @param {*} res 
+ */
 async function addToRecentlyViewedItems(req, res){
     if(req.body.addProduct &amp;&amp; !containsObject({name: req.body.name, image: req.body.image}, recentlyViewedItems)){
         if(recentlyViewedItems.length > 2){ // if there are more than 3 products in recently viewed, 
@@ -497,13 +525,13 @@ module.exports = {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="DBConnectionError.html">DBConnectionError</a></li><li><a href="InvalidInputError.html">InvalidInputError</a></li><li><a href="Session.html">Session</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addProduct">addProduct</a></li><li><a href="global.html#addUser">addUser</a></li><li><a href="global.html#authenticateUser">authenticateUser</a></li><li><a href="global.html#createOrder">createOrder</a></li><li><a href="global.html#createProduct">createProduct</a></li><li><a href="global.html#createProductData">createProductData</a></li><li><a href="global.html#createSession">createSession</a></li><li><a href="global.html#createUser">createUser</a></li><li><a href="global.html#Delete">Delete</a></li><li><a href="global.html#deleteAllItemFromCart">deleteAllItemFromCart</a></li><li><a href="global.html#deleteItemFromCart">deleteItemFromCart</a></li><li><a href="global.html#deleteProduct">deleteProduct</a></li><li><a href="global.html#DeleteUser">DeleteUser</a></li><li><a href="global.html#findProductWithId">findProductWithId</a></li><li><a href="global.html#findProductWithName">findProductWithName</a></li><li><a href="global.html#generateLoginPage">generateLoginPage</a></li><li><a href="global.html#getAllUsers">getAllUsers</a></li><li><a href="global.html#getConnection">getConnection</a></li><li><a href="global.html#getProducts">getProducts</a></li><li><a href="global.html#getUser">getUser</a></li><li><a href="global.html#handleError">handleError</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#isUserFound">isUserFound</a></li><li><a href="global.html#isValidNames">isValidNames</a></li><li><a href="global.html#isValidPassword">isValidPassword</a></li><li><a href="global.html#listAllUser">listAllUser</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#Logout">Logout</a></li><li><a href="global.html#showAboutUs">showAboutUs</a></li><li><a href="global.html#showCart">showCart</a></li><li><a href="global.html#showContactUs">showContactUs</a></li><li><a href="global.html#showHome">showHome</a></li><li><a href="global.html#showProducts">showProducts</a></li><li><a href="global.html#showSignUp">showSignUp</a></li><li><a href="global.html#submitCart">submitCart</a></li><li><a href="global.html#UpdatePassword">UpdatePassword</a></li><li><a href="global.html#updateProduct">updateProduct</a></li><li><a href="global.html#UpdateUserPassword">UpdateUserPassword</a></li><li><a href="global.html#validateProduct">validateProduct</a></li><li><a href="global.html#validateUsername">validateUsername</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="DBConnectionError.html">DBConnectionError</a></li><li><a href="InvalidInputError.html">InvalidInputError</a></li><li><a href="Session.html">Session</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addProduct">addProduct</a></li><li><a href="global.html#addToRecentlyViewedItems">addToRecentlyViewedItems</a></li><li><a href="global.html#addUser">addUser</a></li><li><a href="global.html#authenticateUser">authenticateUser</a></li><li><a href="global.html#containsObject">containsObject</a></li><li><a href="global.html#createOrder">createOrder</a></li><li><a href="global.html#createProduct">createProduct</a></li><li><a href="global.html#createProductData">createProductData</a></li><li><a href="global.html#createSession">createSession</a></li><li><a href="global.html#createUser">createUser</a></li><li><a href="global.html#Delete">Delete</a></li><li><a href="global.html#deleteAllItemFromCart">deleteAllItemFromCart</a></li><li><a href="global.html#deleteItemFromCart">deleteItemFromCart</a></li><li><a href="global.html#deleteProduct">deleteProduct</a></li><li><a href="global.html#DeleteUser">DeleteUser</a></li><li><a href="global.html#findProductWithId">findProductWithId</a></li><li><a href="global.html#findProductWithName">findProductWithName</a></li><li><a href="global.html#generateLoginPage">generateLoginPage</a></li><li><a href="global.html#getAllUsers">getAllUsers</a></li><li><a href="global.html#getConnection">getConnection</a></li><li><a href="global.html#getProducts">getProducts</a></li><li><a href="global.html#getUser">getUser</a></li><li><a href="global.html#handleError">handleError</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#isUserFound">isUserFound</a></li><li><a href="global.html#isValidNames">isValidNames</a></li><li><a href="global.html#isValidPassword">isValidPassword</a></li><li><a href="global.html#listAllUser">listAllUser</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#Logout">Logout</a></li><li><a href="global.html#populateProducts">populateProducts</a></li><li><a href="global.html#showAboutUs">showAboutUs</a></li><li><a href="global.html#showCart">showCart</a></li><li><a href="global.html#showCartPage">showCartPage</a></li><li><a href="global.html#showContactUs">showContactUs</a></li><li><a href="global.html#showHome">showHome</a></li><li><a href="global.html#showProducts">showProducts</a></li><li><a href="global.html#showSignUp">showSignUp</a></li><li><a href="global.html#submitCart">submitCart</a></li><li><a href="global.html#UpdatePassword">UpdatePassword</a></li><li><a href="global.html#updateProduct">updateProduct</a></li><li><a href="global.html#UpdateUserPassword">UpdateUserPassword</a></li><li><a href="global.html#validateProduct">validateProduct</a></li><li><a href="global.html#validateUsername">validateUsername</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Fri May 20 2022 12:49:16 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Fri May 20 2022 13:30:16 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

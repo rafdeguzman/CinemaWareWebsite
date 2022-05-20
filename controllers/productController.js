@@ -255,7 +255,7 @@ async function populateProducts(){
  * Checks if the object exists in the list
  * @param {*} obj 
  * @param {*} list 
- * @returns 
+ * @returns true if found, false otherwise.
  */
 function containsObject(obj, list) {
     var i;
