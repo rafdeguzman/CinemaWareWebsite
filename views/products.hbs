@@ -12,12 +12,7 @@
                 {{#if ../../isAdmin}}
                 <p>product type: {{this.type}} product id: {{this.id}}</p>
                 {{/if}}
-                {{#if this.image}}
                 <img class="card-img-top" src={{this.image}} alt="Card image cap" onerror="this.src= 'images/logo_wide_white.png'">
-                {{/if}}
-                {{#else}}
-                <img class="card-img-top" src="images/logo_wide_white.png" alt="Card image cap">
-                {{/else}}
                 <div class="card-body">
                     <h5 class="card-title">{{this.name}}</h5>
                     <p class="card-text">${{this.price}}</p>
@@ -109,6 +104,49 @@
   </div>
 </div>
 
+
+{{#if isAdmin}}
+  <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addModal" data-bs-id="{{this.id}}" data-bs-name="{{this.name}}" data-bs-type="{{this.type}}" data-bs-price="{{this.price}}" data-bs-image="{{this.image}}">
+    Add Product
+  </button>
+{{/if}}
+
+  <!-- Update -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addModalLabel" style="color: #151414" >Add Product ID: </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="color: #151414">
+        <!-- Form for add goes here -->
+        <form action="/products" method="post" role ="form" enctype="application/x-www-form-urlencoded">
+        <legend class="darktxt">Enter Product info</legend>
+
+        <label class="darktxt" for="name">Name:</label><br>
+        <input class="darktxt" type="text" id="name" name="name"><br>
+
+        <label class="darktxt" for="type">type:</label><br>
+        <input class="darktxt" type="text" id="type" name="type"><br>
+
+        <label class="darktxt" for="price">Price:</label><br>
+        <input class="darktxt" type="text" id="price" name="price"><br>
+
+        <label class="darktxt" for="image">Image URL:</label><br>
+        <input class="darktxt" type="text" id="image" name="image"><br>
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
 <script type="text/javascript">
   var deleteModal = document.getElementById("deleteModal")
   deleteModal.addEventListener("show.bs.modal", function (event){
@@ -140,22 +178,8 @@
   formType.value = type;
   formPrice.value = price;
   formImage.value = image;
-})
-
+  })
 </script>
 
-    <form action="/products" method="post" role ="form" enctype="application/x-www-form-urlencoded">
-        <legend class="darktxt">Enter Product info</legend>
-
-        <label class="darktxt" for="name">Name:</label><br>
-        <input type="text" id="name" name="name"><br>
-
-        <label class="darktxt" for="type">type:</label><br>
-        <input type="text" id="type" name="type"><br>
-
-        <label class="darktxt" for="price">Price:</label><br>
-        <input type="text" id="price" name="price"><br>
-
-        <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
 </body>
+

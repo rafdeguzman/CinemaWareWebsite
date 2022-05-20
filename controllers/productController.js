@@ -47,6 +47,7 @@ async function createProduct(req, res){
         if(added){
             populateProducts();
             res.render('products.hbs', renderItems);
+            res.redirect('/products');
         }
     } catch(error){
         logger.error(error);
