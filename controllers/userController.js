@@ -309,6 +309,7 @@ async function Logout(request, response){
   
   response.cookie("sessionId", "", { expires: new Date() }); // "erase" cookie by forcing it to expire.
   response.cookie("id", "", { expires: new Date() }); // "erase" cookie by forcing it to expire.
+  response.cookie("shoppingCart", "", { expires: new Date() }); // "erase" cookie by forcing it to expire.
   response.render("home.hbs", {
     alertSuccess:true ,alertMessage: "Successfully log out"
   });
